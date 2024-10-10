@@ -1,0 +1,20 @@
+Server   Product  Line/Station/Setting	Email
+  ↓        ↓        ↓		              ↓
+page1 => page2 => page3       =>        page4
+                	↓
+                	↓
+					↓
+					↓
+					↓
+					↓
+ Add Line/Add Station/Change Setting/Delete Line
+    ↓         ↓              ↓            ↓
+    ↓         ↓              ↓            ↓
+  page3-1   page3-2        page3-3      page3-4
+  							 ↓
+                             ↓ 
+Change for Product/Change for Line/Change for Station Type/Change for Unit#/IP
+       ↓				  ↓				    ↓					   ↓
+       ↓				  ↓					↓					   ↓
+	page3-3-1	      page3-3-2	         page3-3-3	            page3-3-4
+

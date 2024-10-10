@@ -1,0 +1,16 @@
+<tr>
+    <th class="th_top_tech">Item</th>
+    <th class="th_top_tech">TestActions</th>
+    <th class="th_top_tech">TestParameters</th>
+    <th class="th_top_tech">TestCommands</th>
+    <th class="th_top_tech">StopOnError</th>
+</tr>
+{%for act in station_tc%}
+<tr>
+    <td>{{act.TestName}}</td>
+    <td>{{act.TestActions}}</td>
+    <td>{{act.TestParameters}}</td>
+    <td style="color:blue">{{act.TestCommands}}</td>
+    <td>{{act.StopOnError}}</td>
+</tr>
+{%endfor%}

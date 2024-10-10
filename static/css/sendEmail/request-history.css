@@ -1,0 +1,14 @@
+.content {
+    margin-top: 10px; margin-bottom: 66px;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.content th, .content td {
+    padding: 6px;
+}
+
+.mail_content{
+    overflow: auto;
+    background-color: rgb(252, 251, 250);
+}

@@ -1,0 +1,153 @@
+{%extends "basehome.html" %}
+{% load staticfiles %}
+{% block title %}
+    <title>index</title>
+{% endblock %}
+{% block mainhead %}
+
+    <style>
+      /*
+      * Dummy devices (replace them with your own or something else entirely!)
+      */
+      .product-device {
+        position: absolute;
+        right: 10%;
+        bottom: -30%;
+        width: 300px;
+        height: 540px;
+        background-color: #333;
+        border-radius: 21px;
+        -webkit-transform: rotate(30deg);
+        transform: rotate(30deg);
+      }
+
+      .product-device::before {
+        position: absolute;
+        top: 10%;
+        right: 10px;
+        bottom: 10%;
+        left: 10px;
+        content: "";
+        background-color: rgba(255, 255, 255, .1);
+        border-radius: 5px;
+      }
+
+      .product-device-2 {
+        top: -25%;
+        right: auto;
+        bottom: 0;
+        left: 5%;
+        background-color: #e5e5e5;
+      }
+
+
+      /*
+      * Extra utilities
+      */
+      .flex-equal > * {
+        -ms-flex: 1;
+        flex: 1;
+      }
+      @media (min-width: 768px) {
+        .flex-md-equal > * {
+          -ms-flex: 1;
+          flex: 1;
+        }
+      }
+
+      .overflow-hidden { overflow: hidden; }
+
+    .myImage{
+        width: auto;
+        height: auto;
+        border-radius: 21px 21px 0 0;
+      }
+      .content_scorll{
+        overflow:scroll;
+        height:100%;
+      }
+    </style>
+  {% endblock %}
+
+{% block mainbody %}
+  <div class="content_scorll">
+    <div class="position-relative overflow-hidden text-center bg-light">
+      <div class="col-md-8 p-lg-5 mx-auto my-5" onclick="location.href={% url 'index' %}">
+          <a href="{% url 'index' %}"></a>
+          <h1 class="display-4 font-weight-bold">ATS Web Center</h1>
+          <p class="lead font-weight-normal">Here is the center for ATS daily work</p>
+      </div>
+      <div class="product-device shadow-sm d-none d-md-block" ></div>
+    </div>
+
+
+    <div class="d-flex flex-md-equal w-100 my-sm-3 pl-sm-3 justify-content-around">
+        <div class="bg-danger mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center text-dark overflow-hidden" onclick="location.href='/issue'">
+            <div class="py-2">
+                <h4 class="display-8">Issue List</h4>
+                <p class="lead">Show all issues</p>
+                <img class="myImage"; src="{% static 'img/index/issueList.png' %}">
+            </div>
+        </div>
+
+        <div class="bg-info mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" onclick="location.href='{% url 'tcIndex' %}'">
+            <div class=" py-2">
+                <h4 class="display-8">Test Coverage</h4>
+                <p class="lead">Stations test info</p>
+                <img class="myImage"; src="{% static 'img/index/document-text.png' %}">
+            </div>
+        </div>
+
+        <div class="bg-success mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" onclick="location.href='{% url 'overlay' 0 %}'">
+            <div class="py-2">
+                <h4 class="display-8">Overlay List</h4>
+                <p class="lead">Show all overlays</p>
+                 <img class="myImage"; src="{% static 'img/index/overlayList.png' %}">
+            </div>
+        </div>
+
+        <div class="bg-warning mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" onclick="location.href='/ST/StationTrack'">
+            <div class="py-2">
+                <h4 class="display-8">Station Track</h4>
+                <p class="lead">Track station status</p>
+                <img class="myImage"; src="{% static 'img/index/stationTrack.png' %}">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-flex flex-md-equal w-100 my-sm-5 pl-sm-3 justify-content-around">
+        <div class="bg-light mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" onclick="location.href='{% url 'userInfo' %}'">
+            <div class="py-2">
+                <h4 class="display-8">User Info</h4>
+                <p class="lead">Show user info</p>
+                <img class="myImage"; src="{% static 'img/index/user.png' %}">
+            </div>
+        </div>
+
+        <div class="bg-primary mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" onclick="location.href='{%url 'messageBoard' %}'">
+            <div class="py-2">
+                <h4 class="display-8">Tools</h4>
+                <p class="lead">Some tools</p>
+                <img class="myImage"; src="{% static 'img/index/tools.png' %}">
+            </div>
+        </div>
+
+        <div class="mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" style="background-color:yellow" onclick="location.href='/Audit/detail'">
+            <div class="py-2">
+                <h4 class="display-8">AuditTracking</h4>
+                <p class="lead">Audit & Summary</p>
+                <img class="myImage"; src="{% static 'img/index/input-checked.png' %}">
+            </div>
+        </div>
+
+        <div class="mr-sm-5 pt-3 px-3 pt-sm-5 px-sm-5 text-center overflow-hidden" style="background-color:#00FFFF" onclick="location.href='{%url 'getDocuments' %}'">
+            <div class="py-2">
+              <h4 class="display-8">Documents</h4>
+                <p class="lead">Atlas&Code document </p>
+                <img class="myImage"; src="{% static 'img/index/th-menu.png' %}">
+            </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

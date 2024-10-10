@@ -1,0 +1,287 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>statistics</title>
+{% endblock %}
+
+{% block mainhead %}
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" media="all" href="{%static "daterangepicker/daterangepicker.css"%}" />
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- bootstrap-table-editable.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"%}></script>
+    <!-- bootstrap-table-locale-all.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!--bootstrap-table-filter-control.min.js-->
+    <script src={% static "bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"%}></script>
+
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.js"%}></script>
+
+    <script type="text/javascript" src={% static "laydate/laydate.js"%}></script>
+
+    <script type="text/javascript" src={% static "daterangepicker/moment.min.js"%}></script>
+    <script type="text/javascript" src={% static "daterangepicker/daterangepicker.js"%}></script>
+
+    <style>
+        td{
+            white-space: nowrap;
+            max-height: 200px;
+            max-width: 400px;
+        }
+        #page-content-wrapper {
+            padding-left: 10px;
+            padding-right: 10px;
+            width: auto;
+            overflow:scroll;
+        }
+        .colStyle {
+            text-overflow: ellipsis;
+            overflow: scroll;
+            white-space: normal;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var reportType="AllAction"
+
+        $(function() {
+            initTable();
+            adjustHeight();
+            //下载表示时，选择时间段
+            selectDate();
+            downloadFileByForm();
+
+            //选择左边分类时调用   OpenAction/DoneAction/History
+            $(".reportCategroy").click(function(){
+                //得到选中的reportType
+                reportType=$(this)[0].innerHTML
+                //选中的背景变化
+                changeStationBgColor(this);
+                //重新加载table
+                initTable();   
+            });
+
+        })
+
+         //调整页面高度
+        function adjustHeight(){
+            var content_height=ds-$(".navbar").height();
+            $(".movie-content").height(content_height);
+            $(".content_scroll").height(content_height);
+        }
+
+        function initTable() {
+            $('#table').bootstrapTable('destroy').bootstrapTable({
+                exportDataType: "all",
+                exportTypes:['csv','excel','xml','txt','json', 'sql',],
+                fileName: 'tableExport',
+                exportOptions: {
+                    ignoreColumn: [0, 0],            //忽略某一列的索引
+                    fileName: 'overlay_list',
+                },
+                contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+                columns: [
+                {
+                    field: 'station',
+                    title: '站位',
+                    sortable: true,
+                },{
+                    field: 'status',
+                    title: '状态',
+                    sortable: true,
+                    cellStyle: function(value, row, index){
+                        if(value == 'New'){
+                            return {css:{'background-color':'red',}}
+                        }
+                        else if(value == 'Ongoing'){
+                            return {css:{'background-color':'yellow',}}
+                        }
+                        else if(value == 'Done'){
+                            return {css:{'background-color':'green',}}
+                        }
+                        return {}   
+                    }
+                },{
+                    field: 'category',
+                    title: '分类',
+                    sortable: true,
+                }, {
+                    field: 'Description',
+                    title: '报告描述',
+                    sortable: false,
+                    class: 'colStyle',
+                    formatter : function(value, row, index){
+                        var div = "<div style='width:300px;'>"+value+"</div>";
+                        return div;
+                    },
+                }, {
+                    field: 'note',
+                    title: '备注',
+                    filterControl: 'checkbox',
+                    class: 'colStyle',
+                    formatter : function(value, row, index){
+                        var div = "<div style='width:400px;'>"+value+"</div>";
+                        return div;
+                    },
+                },{
+                    field: 'author',
+                    title: 'Author',
+                },{
+                    field: 'fatory',
+                    title: '工厂名称',
+                    sortable: true,
+                },{
+                    field: 'projectBuildStage',
+                    title: '专案-阶段',
+                    sortable: true,
+                },{
+                    field: 'cocoDRI',
+                    title: 'CocoDRI',
+                    sortable: true,
+                }, {
+                    field: 'radarNumber',
+                    title: '雷达号',
+                    sortable: true,
+                },{
+                    field: 'updateTime',
+                    title: '更新时间',
+                    sortable: true,
+                }],
+                onLoadError: function () {
+                    console.log("数据加载失败！");
+                },
+            });
+        }
+
+        function queryParams(params) {
+            return {para : reportType};
+        }
+        
+        //下载前先判断该时间段是否有数据
+        function downloadFileByForm() {
+            $("#btn_download").click(function(){
+                let isconfirm = confirm('请确认是否下载？');
+                if(isconfirm){
+                    var dateSelect = $("#date_select")[0].value;
+                    $.ajax({
+                        url: "{% url 'judgeDateTime' %}",
+                        type: "post",
+                        data: {"dateSelect":dateSelect},
+                        dataType:'json',
+                        success: function (data,status) {
+                            if (data == '1' && status == 'success') {
+                                //用form表单下载文件
+                                var url = "{% url 'downloadReports' %}";
+                                var form = $("<form></form>").attr("action", url).attr("method", "post");
+                                form.append($("<input></input>").attr("type", "hidden").attr("name", "dateSelect").attr("value", dateSelect));
+                                form.appendTo('body').submit().remove();
+                            }else{
+                                alert("该时间段无记录！");
+                            }
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            alert(textStatus);
+                        }
+                    });
+                }
+            });
+        }
+
+        function selectDate() {
+            var options = {};
+            options.ranges = {
+              'Today': [moment(), moment()],
+              'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+              'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+              'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+              'This Month': [moment().startOf('month'), moment().endOf('month')],
+              'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            };
+            options.linkedCalendars = true;
+            options.autoUpdateInput = true;
+            options.showCustomRangeLabel = true;
+            options.opens='right';
+            options.drops='down';
+            options.buttonClasses = 'btn btn-sm';
+            options.applyClass = 'btn-success';
+            options.cancelClass = 'btn-default'
+            
+            //使用daterangepicker选择时间段
+            $('#date_select').daterangepicker(options, function(start, end, label) { 
+                console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')'); 
+            });
+          
+        }
+
+        function changeStationBgColor(a_reportCate){
+            var reportCate=document.getElementsByClassName('reportCategroy');
+
+            for(i=0;i<reportCate.length;i++){
+                if(a_reportCate==reportCate[i]){
+                    reportCate[i].style.background="#B0E2FF";
+                    reportCate[i].style.color="white";
+                }else{
+                    reportCate[i].style.background="#fff";
+                    reportCate[i].style.color="#666";
+                }
+            }
+        }
+
+    </script>
+{% endblock %}
+
+{% block sidebar-menu %}
+    <a href="{% url "myInfo" %}" class="list-group-item list-group-item-action">个人信息</a>
+    <a href="{% url "myReport" %}" class="list-group-item list-group-item-action">日志</a>
+    <a href="{% url "statistics" %}" class="list-group-item list-group-item-action active">统计</a>
+{% endblock %}
+
+{% block  content%}
+<div   id="page-content-wrapper">
+    <div id="toolbar">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <input type="text" id="date_select" class="form-control" style="width: 220px;">
+            <button id="btn_download" class="btn btn-secondary" data-toggle="modal" data-target="#modalTable-add">
+                Download
+            </button>
+        </div>
+    </div>
+    <table id="table"
+        data-url="{% url "myReportGetData" %}"
+        data-method	= "post"
+        data-query-params = "queryParams"
+
+        data-toolbar="#toolbar"
+        data-search="true"
+        data-show-refresh="true"
+        data-show-fullscreen="true"
+        data-show-columns="true"
+
+        data-click-to-select="true"
+        data-sort-order="desc"
+        data-sort-name="update_time"
+        data-filter-control="true"
+
+        data-pagination="true"
+        data-side-pagination="client"
+        data-page-list="[5, 10, 25, 50, 100,]"
+        data-page-number = "1"
+        data-page-size = "25"
+        data-pagination-pre-text = "上一页"
+        data-pagination-next-text = "下一页">
+    </table>
+    
+</div>
+{% endblock %}
+

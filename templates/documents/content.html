@@ -1,0 +1,87 @@
+<!-- 函数列表（目录）！！！！ -->
+<nav class="navbar bg-light" style="overflow-x: scroll;">
+    <form action="/doc/searchFunction/" method="POST">
+        <div class="input-group">
+            <input autocomplete="off" type="text" class="form-control" name="name" placeholder="搜索函数…">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-secondary input-group-text"><i class="fa fa-search"></i></button>
+            </div>
+        </div>
+    </form>
+    <ul id="content" style="list-style: none; padding:0; margin-bottom: 0.5rem;" class="navbar-nav">
+        <span class="navbar-item" style="font-weight: bold; line-height: 2;">目录</span>
+        <li class="navbar-item" style="white-space: nowrap;">
+            <a id="a_introduction" href="{% url 'getDocuments' %}">
+                介绍
+            </a>
+        </li>
+        {% for i in funclist %}
+        <li class="navbar-item" style="white-space: nowrap;">
+            <a id="a_{{ i.name }}" href="#u_{{ i.name }}" data-toggle="collapse">
+                {{ i.name }}
+            </a>
+        </li>
+        <ul id="u_{{ i.name }}" class="collapse" style="list-style: none">
+
+            <!-- 加载子类列表 -->
+            {% if i.has_sec_func %}
+            {% for j in i.include %}
+            <li class="navbar-item">
+                <a id="a_{{ j.name }}" href="#u_{{ j.name }}" data-toggle="collapse">
+                    {{ j.name }}
+                </a>
+                <ul id="u_{{ j.name }}" class="collapse" style="list-style: none">
+                    <!-- 加载二级函数列表 -->
+                    {% for k in j.include %}
+                    <li class="navbar-item">
+                        <a href="?func={{ k }}" style="font-size: smaller;">
+                            {{ k | capfirst }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                    <!-- end加载二级函数列表 -->
+                </ul>
+            </li>
+            {% endfor %}
+            <!-- end加载子类列表 -->
+
+            <!-- 加载一级函数列表 -->
+            {% else %}
+            {% for j in i.include %}
+            <li class="navbar-item">
+                <a href="?func={{ j }}" style="font-size: smaller">
+                    {{ j | capfirst }}
+                </a>
+            </li>
+            {% endfor %}
+            <!-- end加载一级函数列表 -->
+            {% endif %}
+        </ul>
+        {% endfor %}
+    </ul>
+    <style>
+        #content a {
+            color: #444;
+            text-decoration: none;
+        }
+
+        #content a:hover {
+            color: black;
+        }
+
+        #content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+    <script>
+        {% ifnotequal name 'Introduction' %}
+        $("[href='?func={{ name }}']").parents().addClass("show");
+        $("[href='?func={{ name }}']").css("color", "gray");
+        $("[href='?func={{ name }}']").removeAttr("href");
+        {% else %}
+        $("#a_introduction").css("color", "gray");
+        $("#a_introduction").removeAttr("href");
+        {% endifnotequal %}
+    </script>
+</nav>

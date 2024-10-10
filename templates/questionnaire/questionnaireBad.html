@@ -1,0 +1,25 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>questionnaire</title>
+{% endblock %}
+
+{% block mainhead %} 
+
+{% endblock %}
+
+{% block mainbody %}
+    <nav class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url "getQuestionnaire" %}">问卷首页</a></li>
+    <li class="breadcrumb-item active"><a href="#" class="active">{{questionnaireTheme}}</a></li>
+    </nav>
+    {% if questionnaireMessage %}
+     <h4>{{questionnaireMessage}}</h4>
+    {% endif %}
+{% endblock %}
+
+{% block last%}
+
+{% endblock %}

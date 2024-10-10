@@ -1,0 +1,265 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>TestCoverage</title>
+{% endblock %}
+
+{% block mainhead %}
+    <script src="{% static 'js/testCoverage.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'css/testCoverage.css'%}">
+{% endblock%}
+
+{% block mainbody %}
+<!--隐藏的div，当加载时显示-->
+<div class="hidden_div" id="hiddenDivId">
+</div>
+
+<div id='AllScreen' class="d-flex align-items-start flex-column bd-highlight" style="height:100%;">
+    <!-- 左边目录-->
+    <div class="sidebar">
+        <!--关闭按钮-->
+        <a  class="slider" href="javascript:return void(0);" style="float:right;">
+          <img alt="close" src="{% static 'img/close.png'%}">
+        </a>   
+
+        <!--Tab菜单-->
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item">
+                <a id="a_list" class="nav-link active" data-toggle="tab" href="#home">目录</a>
+            </li>
+            <li class="nav-item">
+                <a id="a_search" class="nav-link" data-toggle="tab" href="#search">搜索</a>
+            </li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content tab_height">
+            <!-- 显示目录内容 -->
+            <div id="home" class="container-fluid tab-pane active">
+                <br/>
+                <div class="accordion" id="accordionExample">       
+                    
+                    {%for class,stations in stationlist.items%}
+                        <div class="card">
+                            <div class="card-header-cate" id="heading{{class}}">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-block btn-lg" type="button" data-toggle="collapse" data-target="#collapse{{class}}" aria-expanded="true" aria-controls="collapse{{class}}" style="font-size:16px;text-align:left;color:#000;background-color:#fff;">
+                                    {{class}}
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapse{{class}}" class="collapse" aria-labelledby="heading{{class}}" data-parent="#accordionExample">
+                                <div>
+                                    <ul class="bar_left_tc">
+                                    {%for s in stations%}
+                                        <li><a class='a_station' href='#' style='color:#666;font-size:14px'>{{s}}</a></li>
+                                    {%endfor%}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div> 
+                    {%endfor%}
+                </div>
+            </div>
+
+            <!-- 搜索内容 -->
+            <div id="search" class="container-fluid tab-pane fade"><br>
+                <form name="search_form" onsubmit="return false;">
+                    {% csrf_token %}
+                      <div class="dropdown">
+                          <button id="select_type" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                              Select
+                          </button>
+                          <div class="dropdown-menu">
+                              <a class="dropdown-item" href="#">Item</a>
+                              <a class="dropdown-item" href="#">Command</a>
+                          </div>
+                          <input type="hidden" name="mark" id="optionvalue">
+                      </div>
+                      <input id="search_type" name="inputStr" class="form-control" type="search" placeholder="Search">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右边内容 -->
+      <div class=" main" id="right_screen">
+          <!-- 显示操作栏 -->
+          <div id="menu_bar">
+              <div style="float:left" >
+                <a  class="slider" href="#">
+                    <img alt="slider" src="{% static 'img/slid_bar.png'%}" data-toggle="tooltip" data-placement="bottom" title="隐藏/显示边栏">
+                </a>
+                <select id="select_git" name="git" data-toggle="tooltip" data-placement="bottom" title="选择GIT">                
+                    {%for g in gits%}
+                        {%ifequal g now_git%}
+                            <option selected>{{g}}</option>
+                        {%else%}
+                            <option>{{g}}</option>
+                        {%endifequal%}           
+                    {%endfor%}
+                </select>
+                <select id="select_branch" name="branch" data-toggle="tooltip" data-placement="bottom" title="选择分支">
+                    {%for b in branches%}
+                        {%ifequal b now_branch%}
+                            <option selected>{{b}}</option>
+                        {%else%}
+                            <option>{{b}}</option>
+                        {%endifequal%}           
+                    {%endfor%}
+                </select>
+                <a id="refresh_stationTC" href="#" >
+                    <img alt="refresh" src="{% static 'img/refresh.png'%}"  data-toggle="tooltip" data-placement="bottom" title="Refresh">
+                </a>
+                <span id="refresh_time">{{refresh_time}}</span>
+                <a id="first" class="go_page" href="#">
+                    <img alt="last page" src="{% static 'img/last_page.png'%}" data-toggle="tooltip" data-placement="bottom" title="Main">
+                </a>
+                <a id="second" class="go_page" href="#" >
+                    <img alt="next page" src="{% static 'img/next_page.png'%}" data-toggle="tooltip" data-placement="bottom" title="Tech">
+                </a>
+                <a id="download_stationTC" href="#" >
+                    <img alt="download" src="{% static 'img/download.png'%}" data-target="#myModal" data-toggle="modal" data-placement="bottom" title="下载TC文件">
+                </a>
+
+                <!-- 下载TC文件的模态框 -->
+                  <div class="modal fade" id="myModal">
+                    <div class="modal-dialog ">
+                      <div class="modal-content">
+
+                        <!-- 模态框头部 -->
+                        <div class="modal-header">
+                          <h4 class="modal-title">下载TC文件</h4>
+                          <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        </div>
+
+                        <!-- 模态框主体 -->
+                        <div class="modal-body">
+                            <form method="post" action="createTc/" enctype="multipart/form-data">
+                                <ul style="list-style:none;">
+                                    <li>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">LogCSV</span>
+                                            </div>
+                                            <input id="photoCover" class="form-control" type="file" name="files" onclick="setValue();">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Station</span>
+                                            </div>
+                                            <select id="station_select" name="station" class="form-control" style="width:50%">
+                                                    {%for stations in stationlist.values%}
+                                                        {%for s in stations%}
+                                                            <option>{{s}}</option>
+                                                        {%endfor%}
+                                                    {%endfor%}
+                                            </select>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Mode</span>
+                                            </div>
+                                            <select name="mode" class="form-control" style="width:30%">
+                                                <option>mp</option>
+                                                <option>eng</option>
+                                              </select>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">Stage</span>
+                                            </div>
+                                            <select name="stage" class="form-control" style="width:30%">
+                                                <option>P0</option>
+                                                <option>P1</option>
+                                                <option>P2</option>
+                                                <option>EVT</option>
+                                                <option>CRB</option>
+                                                <option>DVT</option>
+                                                <option>PVTE</option>
+                                                <option>PVT</option>
+                                          </select>
+                                        </div>
+                                    </li>
+                                </ul>
+                                <input id="project_form" class="form-control" name="project" style="display:none;">
+                                <input id="git_form" class="form-control" name="git" style="display:none;">
+                                <input id="branch_form" class="form-control" name="branch" style="display:none;">
+                                <input type="submit" value="CreateTc" class="btn btn-success">
+                            </form>
+                        </div>
+
+                        <!-- 模态框底部 -->
+                        <div class="modal-footer">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+          </div>
+
+          <div id="info_screen" style="width:100%;height:90%" >
+              <!-- 显示main和limit -->
+              <div id="right_screen_main">
+                  <h3 id="station_name" style="display: none"></h3>
+                  <table id="show_data" class="table table-bordered table-sm">
+                      <tr>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                          <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+                      </tr >
+                      <tr id="main_item">
+                          <th>Item</th>
+                          <th>description</th>
+                          <th>Tech</th>
+                          <th>StopOnFail</th>
+                          <th>Disable</th>
+                          <th>mp</th>
+                          <th>eng</th>
+                          <th>grr</th>
+                          <th>rel</th>
+                          <th>LowerLimit</th>
+                          <th>UpperLimit</th>
+                          <th>Units</th>
+                          <th>Pattern</th>
+                      </tr>
+                  </table>
+              </div>
+
+              <!-- 分割线 -->
+              <div id="drap-line"></div>
+
+              <!-- 显示测项的tech或limit -->
+              <div  id="right_screen_tech">
+                  <table id="tech_table" class="table table-bordered table-sm">
+                      <tr id="tech_item">
+                          <th>Item</th>
+                          <th>TestActions</th>
+                          <th>TestParameters</th>
+                          <th>TestCommands</th>
+                          <th>StopOnError</th>
+                      </tr>
+                  </table>
+              </div>
+          </div>
+      </div>
+</div>
+{% endblock %}

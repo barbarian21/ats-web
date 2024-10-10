@@ -1,0 +1,158 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>questionnaireDetail</title>
+{% endblock %}
+
+{% block mainhead %} 
+    <style type="text/css">
+        textarea{
+        	width: 100%;
+            overflow: scroll;
+        }
+    </style>
+{% endblock %}
+
+{% block mainbody %}
+
+<nav class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url "getQuestionnaire" %}">问卷首页</a></li>
+    <li class="breadcrumb-item active"><a href="#" class="active">{{questionnaireTheme}}</a></li>
+</nav>
+
+{% if not isActive %}
+    <h4>问卷尚未启动！</h4>
+{% endif %}
+<form  id="ques-form" class='form-check' target="nm_iframe">
+    {% for questionnaire in questionnaireContent %}
+    <ul class="list-group">
+        <li class="list-group-item">
+            <h6  class="form-check-label"> {{questionnaire.index}}. {{ questionnaire.title|safe }} </h6> 
+            {% if questionnaire.optionType == "radio" %}
+                {% for option in questionnaire.options %}
+                    <div class="form-check">
+                    <input class="form-check-input" type="radio" name="{{questionnaire.id}}" id="{{questionnaire.id}}{{option.key}}" value="{{option.key}}" required>
+                    <label class="form-check-label" for="{{questionnaire.id}}{{option.key}}">
+                        {{option.key}} : {{option.value|safe}}
+                    </label>
+                    </div>
+                {% endfor %}
+
+            {% elif questionnaire.optionType == "checkbox" %}
+                {% for option in questionnaire.options %}
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="{{questionnaire.id}}{{option.key}}" value="{{option.key}}" 
+                            onclick="checkBox('{{questionnaire.id}}',{{questionnaire.options}})">
+                    <label class="form-check-label" for="{{questionnaire.id}}{{option.key}}">
+                        {{option.key}} : {{option.value|safe}}
+                    </label>
+                    </div>
+                {% endfor %}
+                <input class="form-check-input" type="hidden" name="{{questionnaire.id}}"  id="{{questionnaire.id}}checkbox" value="" required>
+                
+            {% elif questionnaire.optionType == "textarea" %}
+                <div class="form-check">
+                <textarea name="{{questionnaire.id}}" rows="3" required></textarea>
+                </div>
+
+            {% elif questionnaire.optionType == "text" %}
+                <div class="form-check">
+                <input  type="text" name="{{questionnaire.id}}" value="" autocomplete="off" required >
+                </div>
+            {% endif %}
+        </li>
+    </ul>
+    {% endfor %}
+    <br>
+    {% if isSign %}
+    <div class="form-row">
+        <div class="form-group col-md-2">
+            <label>您的姓名:</label>
+            <input class="form-control" name="yourname" placeholder="Example: Scott_Song" autocomplete="off" value="" required>
+        </div>
+        <div class="form-group col-md-2">
+            <label>所属部门:</label>
+            <input class="form-control" name="yourst" placeholder="Example: ATS" autocomplete="off" required>
+        </div>
+    </div>
+    {% endif %}
+    
+    <button id="quesForm-submit" type="submit" class="btn btn-primary pull-center" onclick="submitQues({{count}},'{{isSign}}','{{isActive}}');">提交</button>
+</form>
+
+ <!-- Form post not refresh -->
+<iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+
+{% endblock %}
+
+{% block last%}
+<script>
+    function checkBox(id,listValue){
+        var retValue = ""
+        for(var i=0; i<listValue.length; i++){
+            dict = listValue[i];
+            key = dict["key"];
+            value = dict["value"];
+            checkboxID = id+key;
+            var checkboxObj = document.getElementById(checkboxID);
+            if(checkboxObj.checked){
+                retValue = retValue + checkboxObj.value
+            }
+        }
+        var checkboxInput = document.getElementById(id+"checkbox");
+        checkboxInput.value = retValue;
+    }
+
+    function submitQues(count, sign, isActive){
+        var submitData = $('#ques-form').serializeArray();
+        //alert(JSON.stringify(submitData));
+        bRet = true;
+        if(isActive != "True"){
+            alert("问卷尚未启动！")
+            return;
+        }
+        for(var i = 0; i<submitData.length; i++){
+            dict = submitData[i];
+            if(trim(dict["value"]) == ""){
+                bRet = false;
+                break;
+            }
+        }
+        if(sign == "True"){
+            if(count+2 != submitData.length){
+                bRet = false;
+            }
+        }else{
+            if(count != submitData.length){
+                bRet = false;
+            }
+        }
+        if(bRet){
+            $.ajax({
+                url: "/questionnaire/{{questionnaireThemeID}}/" ,
+                type: "post",
+                data: submitData,
+                dataType:'json',
+                success: function (data,status) {
+                    if(status == 'success' &&  data.status == 0){
+                        alert('提交成功!');
+                        window.location.reload();
+                    }else{
+                        alert(data.data);
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                },
+            });
+        }else{
+            alert("还有未完成的选项！");
+        }
+    }
+    function trim(str)
+    {
+        return str.replace(/(^\s*)|(\s*$)/g, "");
+    }
+</script>
+{% endblock %}

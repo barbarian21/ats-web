@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>{{ subject }}</title>
+        <style>
+            body {
+                font-size: 12px;
+            }
+            .cc {
+                margin-left: 5px;
+            }
+            .from, .subject, i {
+                font-weight: bold;
+                font-style: normal;
+            }
+            .from {
+                font-size: 14px;
+            }
+            .add-time {
+                float: right;
+                font-weight: normal; font-size: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <p class="from">
+            {{ from }}<span class="add-time">{{ add_time }}</span>
+        </p>
+        <p class="subject">{{ subject }}</p>
+        <p>
+            <span><i>收件人：</i>{{ to }}</span>
+            {% if cc %}
+                <span class="cc"><i>抄送：</i>{{ cc }}</span>
+            {% endif %}
+        </p>
+        <hr>
+        <pre>{{ content }}</pre>
+    </body>
+</html>

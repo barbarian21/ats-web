@@ -1,0 +1,105 @@
+<div id="right_screen_search">
+    <table class="table table-bordered table-sm" style="font-size:13px;text-align: left;">
+        <tr calss="tr_except">
+            <th class="th_top_tech">Station</th>
+            <th class="AutoNewline th_top_tech">Item</th>
+            <th class="AutoNewline th_top_tech">Tech</th>
+            <th class="th_top_tech">TestActions</th>
+            <th class="AutoNewline th_top_tech">TestParameters</th>
+            <th class="AutoNewline th_top_tech">TestCommands</th>
+            <th class="th_top_tech">StopOnError</th>
+            <th class="th_top_tech">LowerLimit</th>
+            <th class="th_top_tech">UpperLimit</th>
+            <th class="th_top_tech">Units</th>
+            <th class="th_top_tech">Pattern</th>
+            <th class="th_top_tech">StopOnFail</th>
+            <th class="th_top_tech">Disable</th>
+            <th class="th_top_tech">mp</th>
+            <th class="th_top_tech">eng</th>
+            <th class="th_top_tech">grr</th>
+            <th class="th_top_tech">rel</th>
+        </tr>
+        {%for item in resultList%}
+        {%for act in item.logic%}
+        <tr class="item search_tech_items {{item.name}}">
+            {%if forloop.first%}
+                <th rowspan="{{item.logic|length}}">{{item.station}}</th>
+                <td rowspan="{{item.logic|length}}" class="AutoNewline">{{item.name}}</td>
+                <td rowspan="{{item.logic|length}}" class="AutoNewline">{{item.tech}}</td>
+            {%else%}
+            {%endif%}
+            <td>{{act.TestActions}}</td>
+            <td class="AutoNewline">{{act.TestParameters}}</td>
+            <td class="AutoNewline" style="color:blue">{{act.TestCommands}}</td>
+            <td>{{act.StopOnError}}</td>
+            {%if forloop.first%}
+                <td rowspan="{{item.logic|length}}">{{item.limit.lowerLimit}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.limit.upperLimit}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.limit.units}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.limit.pattern}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.stoponfail}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.disable}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.mp}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.eng}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.grr}}</td>
+                <td rowspan="{{item.logic|length}}">{{item.rel}}</td>
+            {%else%}
+            {%endif%}
+        </tr>
+        {%endfor%}
+        {%endfor%}
+    </table>
+</div>
+<script type="text/javascript">
+$(function(){
+    $('#right_screen_search').on('scroll',function(){
+      var top=$(this)[0].scrollTop;
+      var thead=$('th.th_top_tech');
+      if(top>0){
+        thead.css('top',top-14);
+      }else{
+        thead.css('top',0);
+      }
+    });
+
+    $(document).on("mouseover","tr.search_tech_items",function(e){
+        if($(this.children).length>5){
+                //得到这个测项的测项名
+                var item_name=$(this.children[1])[0].innerText;
+                //给点击测项的所有行添加背景
+                $("tr."+item_name).addClass("tr_hover")
+            }else{
+                //Tech中，测项非第一行
+                //得到该行所有的class name
+                var attrs=$(this).attr("class").split(" ")
+                //刷选出有测项名字的class
+                for(a=0;a<attrs.length;a++){
+                    if(attrs[a]!="item" && attrs[a]!="search_tech_items" && attrs[a]!="select" && attrs[a]!="tr_hover"){
+                        item_name=attrs[a]
+                    }
+                }
+                $("tr."+item_name).addClass("tr_hover")              
+            }
+      });
+
+      $(document).on("mouseout","tr.search_tech_items",function(e){
+        if($(this.children).length>5){
+                //得到这个测项的测项名
+                var item_name=$(this.children[1])[0].innerText;
+                //tech中所有行，移除选中的背景
+                $("tr.search_tech_items").removeClass("tr_hover")
+            }else{
+                //点击Tech中，测项非第一行
+                //得到该行所有的class name
+                var attrs=$(this).attr("class").split(" ")
+                //刷选出有测项名字的class
+                for(a=0;a<attrs.length;a++){
+                    if(attrs[a]!="item" && attrs[a]!="search_tech_items" && attrs[a]!="select" && attrs[a]!="tr_hover"){
+                        item_name=attrs[a]
+                    }
+                }
+                $("tr.search_tech_items").removeClass("tr_hover")           
+            }
+      });
+});
+</script>

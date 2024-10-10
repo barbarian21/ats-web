@@ -1,0 +1,65 @@
+{%extends "basehome.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+<title>IssueList</title>
+{% endblock %}
+
+
+{% block mainhead %}
+<!-- 引入bootstrap-table样式 -->
+<link href={% static "bootstrap-table/dist/bootstrap-table.min.css" %} rel="stylesheet">
+<!-- highcharts -->
+<script type="text/javascript" src={% static "highcharts/highcharts.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/exporting.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/offline-exporting.js" %}> </script>
+
+<script type="text/javascript">
+    var ds = $(window).height();
+    $(function () {
+        $(".movie-content").height(ds);
+        $(".content_scroll").height(ds - $(".navbar").height());
+    })
+</script>
+
+{% endblock %}
+
+{% block sidebar-menu %}
+
+<div class="card">
+    <div class="card-header" id="FATP">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+            aria-controls="collapseOne">Audit</button>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="FATP">
+        <div class="list-group">
+            <a href="/Audit/detail" class="list-group-item list-group-item-action">DetailInfo</a>
+            <a href="/Audit/summaryByIssueCategory" class="list-group-item list-group-item-action">Summary</a>
+            <a href="/Audit/summaryByDRI" class="list-group-item list-group-item-action active">SubtotalByDRI</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <table id="dataTable" class="table table-bordered" style="width: 550px; height: 100px; margin: 0 auto"></table>
+        <div id="container" style="width: 500px; height: 500px; margin: 0 auto"></div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static 'js/auditSummary.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var dataSeries = {{ dataSeries | safe}};
+        var xAxis = {{ xAxis | safe }};
+        var title = '{{ project | safe }} Summary By Issue Category And Status';
+        creatChart(dataSeries, xAxis, title);
+        creatTable(dataSeries, xAxis, title, "{{ project | safe }}");
+    });
+</script>
+
+{% endblock %}

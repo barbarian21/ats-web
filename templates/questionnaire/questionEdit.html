@@ -1,0 +1,287 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>questionnaireEdit</title>
+{% endblock %}
+
+{% block mainhead %} 
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+
+    <style>
+    </style>
+{% endblock %}
+
+{% block mainbody %}
+    <div  id="page-content-wrapper">
+        <nav class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url "getQuestionnaire" %}">问卷首页</a></li>
+            <li class="breadcrumb-item active"><a href="#" class="active">问卷编辑</a></li>
+        </nav>
+
+        <!-- Edit theme form -->
+        <form  id="theme-form" class='form-check' target="nm_iframe">
+            <div class="form-group row">
+                <input type="hidden" class="form-control" name="id" autocomplete="off" value="{{quesTheme.id}}" >
+
+                <label class="col-xs-2 col-form-label mr-2">主题</label>
+                <div class="form-group col-md-4">
+                    <input type="text" class="form-control" name="theme" autocomplete="off" value="{{quesTheme.theme}}">
+                </div>
+
+                <label class="col-xs-2 col-form-label mr-2">作者</label>
+                <div class="form-group col-md-1">
+                    <input type="text" class="form-control"  name="author" autocomplete="off" value="{{quesTheme.author}}">
+                </div>
+
+                <div class="btn-group-toggle"  data-toggle="buttons">
+                {% if quesTheme.isActive == True %}
+                    <label class="btn btn-outline-primary active">
+                        <input type="checkbox" name="isActive" id="theme_active" autocomplete="off" checked>启动问卷
+                    </label>
+                {% else %}
+                    <label class="btn btn-outline-primary">
+                        <input type="checkbox" name="isActive" id="theme_active" autocomplete="off">启动问卷
+                    </label>
+                {% endif %}
+
+                {% if quesTheme.isSign == True %}
+                    <label class="btn btn-outline-primary active">
+                        <input type="checkbox" name="sign" id="theme_sign" autocomplete="off" checked>启动署名
+                    </label>
+                {% else %}
+                    <label class="btn btn-outline-primary">
+                        <input type="checkbox" name="sign" id="theme_sign" autocomplete="off">启动署名
+                    </label>
+                {% endif %}
+                </div>
+
+                <div class="form-group col-md-1">
+                    <button id="themeForm-submit" type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </div> 
+        </form>
+
+        <div id="toolbar">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button id="btn_add" class="btn btn-secondary" data-toggle="modal" data-target="#questionnaire-add----">
+                    添加
+                </button>
+            </div>
+        </div>
+
+        <table id="table"
+            data-url="/questionnaireEdit/{{quesTheme.id}}/"
+            data-method	= "post"
+            data-query-params = "queryParams"
+
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-pagination-switch="true"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-unique-id = 'id'
+
+            data-pagination="true"
+            data-side-pagination="client"
+            data-page-list="[5, 10, 25, 50, 100,]"
+            data-page-number = "1"
+            data-page-size = "25"
+            data-pagination-pre-text = "上一页"
+            data-pagination-next-text = "下一页">
+        </table>
+
+        <!-- Form post not refresh -->
+        <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+    </div>
+
+{% endblock %}
+
+{% block last%}
+<script>
+    var $table = $('#table');
+    window.operateEvents = {
+        'click .remove': function (e, value, row, index) {
+            if(confirm("确认删除？")==true){
+                    $.ajax({
+                    url: "/questionnaireEdit/{{quesTheme.id}}/remove/",
+                    type: "post",
+                    data: {'ID': row.id},
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if(status == 'success'  &&  data.status == 0){
+                            $table.bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            });
+                        }else{
+                            alert(data.data)
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+            }
+
+        },
+    };
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            columns: [
+            {
+                field: 'operate',
+                title: '操作',
+                clickToSelect: false,
+                formatter: function(value, row, index) {
+                    return [
+                    '<a class="remove" href="javascript:void(0)" title="Remove">',
+                    '删除',
+                    '</a>',
+                    ].join('')
+                },
+                events: operateEvents,
+            },{
+                field: 'id',
+                title: 'ID',
+                sortable: true,
+                visible:false
+            },{
+                field: 'index',
+                title: '序列',
+                sortable: true,
+                visible:true,
+            },{
+                field: 'title',
+                title: '问卷标题',
+                sortable: true,
+                visible:true,
+            },{
+                field: 'options',
+                title: '选项内容',
+                sortable: true,
+                visible:true,
+            },{
+                field: 'optionType',
+                title: '选项类型',
+                sortable: true,
+                visible:true,
+            }],
+            onClickCell: function(field, value, row, $element) {
+                if(field == "id" || field == "operate"){
+
+                }else{
+                    $element.attr('contenteditable', true);
+                    $element.unbind('blur').bind('blur',function(){
+                        let index = $element.parent().data('index');
+                        let tdValue = $element.html();
+                        if(tdValue != value)
+                        {
+                            saveData(index, field, tdValue, row);
+                        }
+                    })
+                }
+            }, 
+            onLoadError: function () {
+                alert("数据加载失败！");
+            },
+        });
+    }
+
+    $(function() {
+        //init table
+        initTable();
+
+        $('#themeForm-submit').click(function() {
+            var myData = $('#theme-form').serializeArray();
+            $.ajax({
+                url: "/questionnaireEdit/{{quesTheme.id}}/themeEdit/",
+                type: "post",
+                data: myData,
+                dataType: 'JSON',
+                success: function (data, status) {
+                    if(status == 'success'  &&  data.status == 0){
+                    }
+                    else{
+                        alert('保存失败！');
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
+        });
+
+        //insert new row 
+        $('#btn_add').click(function(){
+            $.ajax({
+                url: "/questionnaireEdit/{{quesTheme.id}}/add/",
+                type: "post",
+                data: {},
+                dataType: 'JSON',
+                success: function (data, status) {
+                    if(status == 'success'  &&  data.status == 0){
+                           $table.bootstrapTable('insertRow',{
+                            index: 0,
+                            row: {
+                                id: data.data.id,
+                                index: data.data.index,
+                                title: data.data.title,
+                                options: data.data.options,
+                                optionType: data.data.optionType,
+                            }
+                        });    
+                    }else{
+                        alert(data.data)
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
+        });
+      
+    })
+
+    function saveData(index, field, tdValue, row){
+        tdValue = tdValue.replace(/<br.*?>/g, "\n");
+        tdValue=tdValue.replace(/<[^>]+>/g,"");//截取html标签
+        tdValue=tdValue.replace(/ /ig,"");//截取空格等特殊标签
+        tdValue = tdValue.replace(/\n/g, "<br>");
+        
+        console.log(tdValue)
+        // sync to server
+        $.ajax({
+            url: "/questionnaireEdit/{{quesTheme.id}}/edit/",
+            type: "post",
+            data: {'id':row.id, 'field': field, 'value':tdValue},
+            dataType: 'JSON',
+            success: function (data, status) {
+                if(status == 'success'  &&  data.status == 0){
+                    $table.bootstrapTable('updateCell', {
+                        index: index,
+                        field: field,
+                        value: tdValue
+                    });
+                }
+                else{
+                    alert('保存失败！'+data.data);
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(textStatus);
+            }
+        });
+    }
+</script>
+{% endblock %}

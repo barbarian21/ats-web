@@ -1,0 +1,103 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>userInfo</title>
+{% endblock %}
+
+{% block mainhead %}
+     <style type="text/css">
+        .mycenter{
+	        margin-top: 0px;
+	        margin-left: 25%;
+	        margin-right: auto;
+	        padding: 5%;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function() {
+            adjustHeight();
+        })
+
+        //调整页面高度
+        function adjustHeight(){
+            var content_height=ds-$(".navbar").height();
+            $(".movie-content").height(content_height);
+            $(".content_scroll").height(content_height);
+        }
+    </script>
+{% endblock %}
+
+
+{% block sidebar-menu %}
+    <a href="{% url "userInfo" %}" class="list-group-item list-group-item-action">用户信息</a>
+    <a href="{% url "projectInfo" %}" class="list-group-item list-group-item-action">专案信息</a>
+    <a href="{% url "pegaUserInfo" %}" class="list-group-item list-group-item-action active">PEGA员工查询</a>
+{% endblock %}
+
+{% block  content%}
+    <div class="mycenter">
+        <form  class='form-check' action="/pegaUserInfo/" method="post">
+            <div class="form-group">
+                <input typeof="text"  name="username" placeholder="English Name" autocomplete="off">
+                <button type="submit" class="btn btn-secondary">查询</button>
+            </div>
+
+            {% if pegauser %}
+                <div class="form-group">
+                    <label>公司：</label>
+                    <label>{{ pegauser.title }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label>工号：</label>
+                    <label>{{ pegauser.workID }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label >姓名：</label>
+                    <label>{{ pegauser.displayName }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label>邮箱：</label>
+                    <label>{{ pegauser.email }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label>部门：</label>
+                    <label>{{ pegauser.department }}</label>
+                </div>
+
+                 <div class="form-group">
+                    <label>部门代码：</label>
+                    <label>{{ pegauser.st }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label>简码：</label>
+                    <label>{{ pegauser.mvpn }}</label>
+                </div>
+
+                <div class="form-group">
+                    <label>座机：</label>
+                    <label>{{ pegauser.telephoneNumber }}</label>
+                </div>
+
+                 <div class="form-group">
+                    <label>主管：</label>
+                    <label>{{ pegauser.postalCode }}</label>
+                </div>
+
+                  <div class="form-group">
+                    <label>代理人：</label>
+                    <label>{{ pegauser.company }}</label>
+                </div>
+                 <div class="form-group">
+                    <label>入职时间：</label>
+                    <label>{{ pegauser.whenCreated }}</label>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}

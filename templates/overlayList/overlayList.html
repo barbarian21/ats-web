@@ -1,0 +1,853 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}<title>overlayList</title>{% endblock %}
+
+{% block mainhead %}
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- bootstrap-table-editable.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"%}></script>
+    <!-- bootstrap-table-locale-all.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!--bootstrap-table-filter-control.min.js-->
+    <script src={% static "bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"%}></script>
+
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.js"%}></script>
+
+    <script type="text/javascript" src={% static "laydate/laydate.js"%}></script>
+
+    <style>
+        tr:hover {
+            background-color: rgba(76,175,80,0.3);
+        }
+        td{
+            white-space: nowrap;
+            max-height: 200px;
+            max-width: 400px;
+        }
+        #page-content-wrapper {
+            padding-left: 10px;
+            padding-right: 10px;
+            width: auto;
+            overflow:scroll;
+        }
+        .colStyle {
+            text-overflow: ellipsis;
+            overflow: scroll;
+            white-space: normal;
+        }
+    </style>
+{% endblock %}
+
+{% block sidebar-menu %}
+    {% for key,value in sidebar.items %}
+        {% if forloop.counter == index %}
+            <a href="{{value}}"  class="list-group-item list-group-item-action active">{{key}}</a>
+        {% else %}
+            <a href="{{value}}"  class="list-group-item list-group-item-action ">{{key}}</a>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+{% block content %}
+    <div   id="page-content-wrapper">
+        <div id="toolbar">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button id="btn_add" class="btn btn-secondary" data-toggle="modal" data-target="#modalTable-add">
+                    <i class="glyphicon glyphicon-plus"></i>Add
+                </button>
+            </div>
+        </div>
+        <table id="table"
+            data-url="{% url "overlayGetData" %}"
+            data-method	= "post"
+            data-query-params = "queryParams"
+
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-pagination-switch="true"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-export="true"
+
+            data-unique-id = 'id'
+            data-cache	= "true"
+            data-detail-view="true"
+            data-detail-view-icon="true"
+            data-detail-formatter="detailFormatter"
+
+            data-click-to-select="true"
+            data-sort-order="desc"
+            data-sort-name="update_time"
+            data-filter-control="true"
+
+            data-pagination="true"
+            data-side-pagination="client"
+            data-page-list="[5, 10, 25, 50, 100,]"
+            data-page-number = "1"
+            data-page-size = "25"
+            data-pagination-pre-text = "上一页"
+            data-pagination-next-text = "下一页"></table>
+    </div>
+
+    <!-- modal-dialog for Add button -->
+    <div id="modalTable-add" class="modal fade" tabindex="-1" role="dialog" >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width: 700px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" >Add Record</h5>
+                    <button id="close-addForm" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form  id="add-form" class='form-check' target="nm_iframe" >
+                        <div class="form-row">
+                            <div class="form-group col-md-2">
+                                <label for="project">Project </label>
+                                <input class="form-control" name="project" value="{{ project }}" readonly>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="stage">Stage</label>
+                                <select  class="form-control" name="stage">
+                                    {% for item in stage %}
+                                        <option value="{{ item.id }}">{{ item.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="station">Station </label>
+                                <select  class="form-control" name="station" id="station_1">
+                                    {% for item in station %}
+                                        <option value="{{ item.id }}">{{ item.script }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="status">Status</label>
+                                <select  class="form-control" name="status" id="status_1">
+                                    {% for item in status %}
+                                        <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="radar">Overlay Radar</label>
+                                <input type="text" class="form-control" value="{{radar}}" name="radar" id="overlay_radar">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="radar">Audit DRI</label>
+                                <input type="text" class="form-control" autocomplete="off" name="audit_DRI">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="radar">Audit Time</label>
+                                <input type="text" id="add_auditTime" class="form-control" autocomplete="off"  name="audit_time">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="rollin_time">Roll in Time</label>
+                                <input type="text" id="add_laytime" class="form-control" autocomplete="off"  name="rollin_time">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Mail Note</label>
+                                <input type="checkbox" class="form-control" id="add_mailNote" name="isNote" checked>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Over Time(hours)</label>
+                                <input type="text" id="add_noteTimeout" class="form-control" value=12 name="noteTimeout">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="version">Version</label>
+                            <input type="text" class="form-control" name="version">
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group sm-1">
+                                <div class="input-group-prepend">
+                                    <button id="btn_based_on_1" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false">
+                                    Based on
+                                    </button>
+                                    <ul class="dropdown-menu" id='ul_based_on_1'  style="height:300px;overflow:scroll">
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" id='input_based_on_1' name="based_on">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="core_overlay">Core Overlay</label>
+                            <input type="text" class="form-control" name="core_overlay" >
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group sm-1">
+                                <div class="input-group-prepend">
+                                    <button id="btn_base_on_core_1" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Base on Core
+                                    </button>
+                                    <ul class="dropdown-menu" id='ul_base_on_core_1'  style="height:300px;overflow:scroll">
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" id='input_base_on_core_1' name="based_on_core">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="change_list">Change List</label>
+                            <textarea type="text" class="form-control" name="change_list" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="fixIssue">Fix Issues/Radars</label>
+                            <textarea type="text"  class="form-control"  name="fixIssue"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="remark">Remark</label>
+                            <textarea type="text"  class="form-control" name="remark"></textarea>
+                        </div>
+
+                        <button id="addForm-submit" type="submit" class="btn btn-primary pull-center" >提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal-dialog for Edit button -->
+    <div id="modalTable-edit" class="modal fade" tabindex="-1" role="dialog" >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width: 700px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" >Edit Record</h5>
+                    <button id="close-editForm" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form  id="edit-form" class='form-check' target="nm_iframe">
+                        <div class="form-row">
+                           <div class="form-group col-md-2">
+                                <label for="project">ID</label>
+                               <input id="editor_id" class="form-control" name="id" value="" readonly>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="project">Project</label>
+                                <input id="editor_project" class="form-control" name="project" value="" readonly>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="stage">Stage</label>
+                                <select  class="form-control" id="editor_stage" name="stage">
+                                    {% for item in stage %}
+                                        <option value="{{ item.id }}">{{ item.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="station">Station</label>
+                                <select  class="form-control" id="editor_station" name="station" value="">
+                                    {% for item in station %}
+                                        <option value="{{ item.id }}">{{ item.script }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="status">Status</label>
+                                <select  class="form-control" id="editor_status" name="status" value="">
+                                    {% for item in status %}
+                                        <option value="{{ item }}">{{ item }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="radar">Overlay Radar</label>
+                                <input type="text" class="form-control" id="editor_radar" name="radar">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="radar">Audit DRI</label>
+                                <input type="text" id="editor_auditDRI" class="form-control" autocomplete="off" name="audit_DRI">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="radar">Audit Time</label>
+                                <input type="text" id="editor_auditTime" class="form-control" autocomplete="off"  name="audit_time">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="rollin_time">Roll in Time</label>
+                                <input type="text" id="editor_laytime"  class="form-control" autocomplete="off"  name="rollin_time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label>Mail Note</label>
+                                <input type="checkbox" class="form-control" id="editor_mailNote" name="isNote">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label>Over Time(hours)</label>
+                                <input type="text" id="editor_noteTimeout" class="form-control" autocomplete="off" name="noteTimeout">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="radar">Version </label>
+                            <input type="text" class="form-control" id="editor_version" name="version">
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group sm-1">
+                                <div class="input-group-prepend">
+                                    <button id="btn_base_on_2" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" style="width:100px;" aria-haspopup="true" aria-expanded="false">
+                                    Base on
+                                    </button>
+                                    <ul class="dropdown-menu" id='ul_base_on_2'  style="height:300px;overflow:scroll">
+                                    </ul>
+                                </div>
+                                <input type="text" class="form-control" id='editor_based_on' name="based_on">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="radar">Core Overlay </label>
+                            <input type="text" class="form-control" id="editor_core_overlay" name="core_overlay" >
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group sm-1">
+                                    <div class="input-group-prepend">
+                                        <button id="btn_base_on_core_2" class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Base on Core
+                                        </button>
+                                        <ul class="dropdown-menu" id='ul_base_on_core_2'  style="height:300px;overflow:scroll">
+                                        </ul>
+                                    </div>
+                                <input type="text" class="form-control" id='editor_based_on_core' name="based_on_core">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="change_list">Change List</label>
+                            <textarea type="text" class="form-control" id="editor_change_list" name="change_list" required></textarea>
+                        </div>
+                        <div class="form-group">
+                                <label for="fixIssue">Fix Issues/Radars</label>
+                                <textarea type="text"  class="form-control" id="editor_fixIssue" name="fixIssue"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="remark">Remark</label>
+                            <textarea type="text"  class="form-control" id="editor_remark" name="remark"></textarea>
+                        </div>
+                        <button id="editForm-submit" type="submit" class="btn btn-primary pull-center" >提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form post not refresh -->
+    <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+{% endblock %}
+
+{% block last %}
+<script>
+    var $table = $('#table');
+    //时间选择器
+    laydate.render({
+        elem: '#add_laytime',
+        type: 'datetime',
+        trigger: 'click',
+    });
+    laydate.render({
+        elem: '#editor_laytime',
+        type: 'datetime',
+        trigger: 'click', //采用click弹出
+    });
+    laydate.render({
+        elem: '#add_auditTime',
+        type: 'datetime',
+        trigger: 'click', //采用click弹出
+    });
+     laydate.render({
+        elem: '#editor_auditTime',
+        type: 'datetime',
+        trigger: 'click', //采用click弹出
+    });
+
+    window.operateEvents = {
+        'click .editor': function (e, value, row, index) {
+            var regex = /<br\s*[\/]?>/gi;
+            $("#editor_id").val(row.id);
+            $("#editor_project").val(row.project);
+            $("#editor_stage option").each(function(){
+                if($(this).text() === row.stage){
+                    $(this).prop('selected', true);
+                }
+            });
+            $("#editor_station option").each(function(){
+                if($(this).text() === row.station){
+                    $(this).prop('selected', true);                        
+                }
+            });
+            $("#editor_status").val(row.status);
+
+            if(row.isNote){
+                $("#editor_mailNote").attr("checked",true);
+            }
+            else{
+                $("#editor_mailNote").attr("checked",false);
+            }
+
+            $("#editor_noteTimeout").val(row.noteTimeout);
+            $("#editor_version").val(row.version);
+            $("#editor_based_on").val(row.based_on);
+            $("#editor_core_overlay").val(row.core_overlay);
+            $("#editor_based_on_core").val(row.based_on_core);
+            $("#editor_radar").val(row.radar);
+            $("#editor_auditDRI").val(row.audit_DRI);
+            $("#editor_change_list").val(row.change_list.replace(regex,'\r\n'));
+            $("#editor_remark").val(row.remark.replace(regex,'\r\n'));
+            $("#editor_fixIssue").val(row.fixIssue.replace(regex,'\r\n'));
+
+            if(row.audit_time == 'None'){
+                $("#editor_auditTime").val('');
+            }else{
+                $("#editor_auditTime").val(row.audit_time);
+            }
+
+            if(row.rollin_time == 'None'){
+                $("#editor_laytime").val('');
+            }else{
+                $("#editor_laytime").val(row.rollin_time);
+            }
+            $('#modalTable-edit').modal('show');
+        },
+        'click .remove': function (e, value, row, index) {
+            var message =  "Are you sure remove it?";
+            if (confirm(message)==true) {
+                $.ajax({
+                    url: "{% url 'overlayRemoveRow' %}",
+                    type: "post",
+                    data: {
+                        'recordID': row.id
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (data == '0' && status == 'success') {
+                            $table.bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            });
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+            }
+        }
+    };
+
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportDataType: "all",
+            exportTypes:['csv','excel','xml','txt','json', 'sql',],
+            fileName: 'tableExport',
+            exportOptions: {
+                ignoreColumn: [0, 0],            //忽略某一列的索引
+                fileName: 'overlay_list',
+            },
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            columns: [
+            {
+                field: 'operate',
+                clickToSelect: false,
+                align: 'center',
+                formatter: function(value, row, index) {
+                    return [
+                    '<a class="editor" href="javascript:void(0)" title="Editor" style="margin-right: 10px;">',
+                    '<i class="fa fa-edit"></i>',
+                    '</a>',
+                    '<a class="remove" href="javascript:void(0)" title="Remove">',
+                    '<i class="fa fa-trash"></i>',
+                    '</a>'
+                    ].join('')
+                },
+                events: operateEvents,
+            },{
+                field: 'id',
+                title: 'ID',
+                sortable: true,
+                filterControl: 'input',
+                visible:false
+            },{
+                field: 'project',
+                title: 'Project',
+                sortable: true,
+                filterControl: 'input',
+                visible:false
+
+            },{
+                field: 'stage',
+                title: 'Stage',
+                sortable: true,
+                filterControl: 'input',
+            },{
+                field: 'station',
+                title: 'Station',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+            },{
+                field: 'version',
+                title: 'Version',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='width:300px;'>"+value+"</div>";
+                    return div;
+                },
+            }, {
+                field: 'based_on',
+                title: 'Based On',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                visible:false
+            }, {
+                field: 'core_overlay',
+                title: 'Core Overlay',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                visible:false
+            }, {
+                field: 'based_on_core',
+                title: 'Based On Core',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                visible:false
+            },{
+                field: 'isNote',
+                title: 'isNote',
+                filterControl: 'checkbox',
+                filterControl: 'input',
+                visible:false
+            },{
+                field: 'noteTimeout',
+                title: 'noteTimeout',
+                filterControl: 'input',
+                visible:false
+            },{
+                field: 'status',
+                title: 'Status',
+                sortable: true,
+                filterControl: 'input',
+                cellStyle: function(value, row, index){
+                    if(value == 'New'){
+                        return {css:{'background-color':'red',}}
+                    }
+                    else if(value == 'Online'){
+                        return {css:{'background-color':'blue',}}
+                    }
+                    else if(value == 'Validation'){
+                        return {css:{'background-color':'yellow',}}
+                    }
+                    return {}   
+                }
+            },{
+                field: 'change_list',
+                title: 'Change List',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='width:400px; max-height: 100px;'>"+value+"</div>";
+                    return div;
+                },
+            },{
+                field: 'fixIssue',
+                title: 'Fix Issue / Fix Radar',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='width:300px; max-height: 100px;'>"+value+"</div>";
+                    return div;
+                },
+            },{
+                field: 'remark',
+                title: 'Remark',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='max-height: 100px;'>"+value+"</div>";
+                    return div;
+                },
+            },{
+                field: 'radar',
+                title: 'Overlay Radar',
+                sortable: true,
+                filterControl: 'input',
+            },{
+                field: 'audit_DRI',
+                title: 'Audit DRI',
+                sortable: true,
+                filterControl: 'input',
+            },{
+                field: 'audit_time',
+                title: 'Audit Time',
+                sortable: true,
+                filterControl: 'input',
+            },{
+                field: 'rollin_time',
+                title: 'Rollin Time',
+                sortable: true,
+                filterControl: 'input',
+                class: 'colStyle',
+            },{
+                field: 'update_time',
+                title: 'Update Time',
+                sortable: true,
+                filterControl: 'input',
+                visible:true,
+                class: 'colStyle',
+            },{
+                field: 'add_time',
+                title: 'Add Time',
+                sortable: true,
+                filterControl: 'input',
+                visible:false,
+                class: 'colStyle',
+            },{
+                field: 'author',
+                title: 'Author',
+                sortable: true,
+                filterControl: 'input',
+                visible:true,
+                class: 'colStyle',
+            }],
+            onLoadError: function () {
+                console.log("数据加载失败！");
+            },
+        });
+    }
+
+    $(function() {
+        initTable();
+    })
+
+    function detailFormatter(index, row) {
+        var html = [];
+        $.each(row, function (key, value) {
+            html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+        });
+        return html.join('');
+    }
+
+    function queryParams(params) {return {
+        para : "{{index}}"
+    };}
+
+    function getIdSelections() {
+        return $.map($table.bootstrapTable('getSelections'), function (row) {
+            return row.id
+        })
+    }
+
+    //add rows
+    $('#addForm-submit').click(function() {
+        var addData = $('#add-form').serializeArray();
+        $.ajax({
+            url: "{% url 'overlayAddRow' %}",
+            type: "post",
+            data: addData,
+            dataType:'json',
+            success: function (data,status) {
+                if(status == 'success'){
+                    if(data.refresh){
+                        $table.bootstrapTable('refresh');
+                    }else{
+                        $table.bootstrapTable('insertRow', {
+                            index: 0,
+                            row: data.data,
+                        });
+                    }
+                    $('#close-addForm').click();
+                }
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert(textStatus);
+            }
+        });
+    });
+
+    $('#editForm-submit').click(function() {
+        var editData = $('#edit-form').serializeArray();
+        bRet = true;
+        
+        // check change list not empty
+        if(getPostData(editData,"change_list")==""){
+            bRet = false;
+        }
+        // check roll in time not empty when status=Online
+        if(getPostData(editData,"status")=="Online"){
+            if(getPostData(editData,"rollin_time")==""){
+                bRet = false;
+                return;
+            }
+        }
+
+        if(bRet){
+            $.ajax({
+                url: "{% url 'overlayEditRow' %}" ,
+                type: "post",
+                data: editData,
+                dataType:'json',
+                success: function (data,status) {
+                    if(status == 'success'){
+                        if(data.refresh){
+                            $table.bootstrapTable('refresh');
+                        }else{
+                            $table.bootstrapTable('updateByUniqueId', {
+                                id: data.data.id,
+                                row: data.data
+                            });
+                        }
+                        $('#close-editForm').click();
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                },
+            });
+        }
+       
+    });
+
+    $(document).ready(function(){
+        //调整页面高度
+        var content_height=ds-$(".navbar").height();
+        $(".movie-content").height(content_height);
+        $(".content_scroll").height(content_height);
+
+        // Add modal form based on station choose
+        $('#station_1').change(function(){
+            var stationID=$("#station_1").val();
+            getOverlayRadar(stationID,$("#overlay_radar"))
+        });
+
+        // Add modal form based on overlay choose
+        $('#btn_based_on_1').click(function(){
+            var stationID=$("#station_1").find("option:selected").text();
+            baseOnChoose(stationID,$("#ul_based_on_1"),'version')
+        });
+        $("#ul_based_on_1").on("click", "a", function(){
+            $("#input_based_on_1").val($(this).text());
+        });
+
+        // Add modal form based on core overlay choose
+        $('#btn_base_on_core_1').click(function(){
+            var stationID=$("#station_1").find("option:selected").text();
+            baseOnChoose(stationID,$("#ul_base_on_core_1"),'core_overlay')
+        });
+        $("#ul_base_on_core_1").on("click", "a", function(){
+            $("#input_base_on_core_1").val($(this).text());
+        });
+
+         // Editor modal form based on station choose
+        $('#editor_station').change(function(){
+            var stationID=$("#editor_station").val();
+            getOverlayRadar(stationID,$("#editor_radar"))
+        });
+
+        // Editor modal form based on overlay choose
+        $('#btn_base_on_2').click(function(){
+            var stationID=$("#editor_station").find("option:selected").text();
+            baseOnChoose(stationID,$("#ul_base_on_2"),'version')
+        })
+        $("#ul_base_on_2").on("click", "a", function(){
+            $("#editor_based_on").val($(this).text());
+        });
+
+         // Editor modal form based on core overlay choose
+         $('#btn_base_on_core_2').click(function(){
+            var stationID=$("#editor_station").find("option:selected").text();
+            baseOnChoose(stationID,$("#ul_base_on_core_2"),'core_overlay')
+        });
+        $("#ul_base_on_core_2").on("click", "a", function(){
+            $("#editor_based_on_core").val($(this).text());
+        });
+    });
+
+    function getOverlayRadar(stationID,html_obj){
+        $.ajax({
+            url: "{% url 'getOverlayRadar' %}",
+            type: "post",
+            data: {"station_id":stationID},
+            dataType:'json',
+            success: function (data,status) {
+                if(status == 'success'){
+                  html_obj.val(data.data);
+                }
+            },
+        });
+    }
+
+    function baseOnChoose(station_name, html_obj, key)
+    {
+        html_obj.empty();
+        data = $table.bootstrapTable('getData');
+        index = 0;
+        html = "";
+        for(i in data){
+            version = data[i][key]
+            station = data[i].station
+            if(station==station_name && version != ''){
+                html_obj.append("<li class='list-group-item'><a href='#'>"+version+"</a></li>");
+                index++;
+            }   
+            if(index>20){
+                break;
+            }  
+        } 
+    }
+    function getPostData(arrPost,key){
+        for(var i = 0; i<arrPost.length; i++){
+            dict = arrPost[i];
+            if(dict["name"] == key){
+                return trim(dict["value"])
+            }
+        }
+        return ""
+    }
+    function trim(str)
+    {
+        return str.replace(/(^\s*)|(\s*$)/g, "");
+    }
+</script>
+{% endblock %}

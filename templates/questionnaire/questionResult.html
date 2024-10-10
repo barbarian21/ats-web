@@ -1,0 +1,153 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>questionnaireResult</title>
+{% endblock %}
+
+{% block mainhead %} 
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!--bootstrap-table-filter-control.min.js-->
+    <script src={% static "bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"%}></script>
+
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.js"%}></script>
+
+
+    <style type="text/css">
+        .tab-pane fade{}
+    </style>
+{% endblock %}
+
+
+{% block mainbody %}
+
+<nav class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url "getQuestionnaire" %}">问卷首页</a></li>
+    <li class="breadcrumb-item active"><a href="#" class="active">{{questionnaireTheme}}统计</a></li>
+</nav>
+
+
+<div class="list-group list-group-horizontal">
+    <a class="list-group-item " data-toggle="list" href="#list-table" >数据表格</a>
+    <a class="list-group-item "  data-toggle="list" href="#list-table-result" >数据统计</a>
+</div>
+
+
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade" id="list-table" role="tabpanel">
+        <table id="table"
+            data-url="/questionnaireAnswer/{{questionnaireThemeID}}/"
+            data-method	= "post"
+            data-query-params = "queryParams"
+
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-pagination-switch="true"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-export="true"
+
+            data-cache	= "true"
+            data-filter-control="true"
+
+            data-pagination="true"
+            data-side-pagination="client"
+            data-page-list="[5, 10, 25, 50, 100,]"
+            data-page-number = "1"
+            data-page-size = "25"
+            data-pagination-pre-text = "上一页"
+            data-pagination-next-text = "下一页">
+            <thead>
+                <tr>
+                    <th data-field="name" data-sortable="true">姓名</th>
+                    <th data-field="department" data-sortable="true">部门</th>
+                    <th data-field="ipAddress" data-sortable="true">IP</th>
+                    {% for obj in questionnaireContent %}
+                        <th data-field="{{obj.id}}" data-sortable="true">题目{{obj.index}}</th>
+                    {% endfor %}
+                    <th data-field="add_time" data-sortable="true">提交时间</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="list-table-result" role="tabpanel">
+        {% for item in result %}
+            <h6>{{item.index}}.{{item.questionTitle}}</h6>
+            {% if  item.optionType == "textarea" or item.optionType == "text" %}
+                {% for answerObj in item.answers %}
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <p>姓名:{{answerObj.name}} 部门：{{answerObj.department}} </p>
+                        <p>{{answerObj.answer}}</p>
+                    </li>
+                </ul>
+                {% endfor %}
+            {% else %}
+                <table class="table table-bordered table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>选项</th>
+                        <th>数量</th>
+                    </tr>
+                </thead>
+                {% for answer in item.answers %}
+                    <tr>
+                    <td>{{ answer.key}}:{{ answer.content|safe }}</td>
+                    <td>{{answer.value}}</td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="2">总人数={{item.totalPeople}} 总数量={{item.totalCount}}</td>
+                </tr>
+                </table>
+            {% endif %}
+        
+            <div class="row" >
+                <img src="{{item.barChart}}">
+                <img src="{{item.pieChart}}">
+            </div>
+        {% endfor %}
+    </div>
+
+</div>
+    
+{% endblock %}
+
+{% block last%}
+<script>
+    var $table = $('#table');
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            exportDataType: "all",
+            exportTypes:['csv','excel','xml','txt','json',],
+            fileName: 'tableExport',
+            exportOptions: {
+               // ignoreColumn: [0, 0],            //忽略某一列的索引
+                fileName: 'questionnaire',
+            },
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            onLoadError: function () {
+                console.log("数据加载失败！");
+            },
+        });
+    }
+    function queryParams(params) {return {};}
+
+    $(function() {
+        initTable();
+    })
+</script>
+{% endblock %}

@@ -1,0 +1,104 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>Tools</title>
+{% endblock %}
+
+{% block mainhead %} 
+    <script src="{% static 'js/tools/macapps.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'css/tools/macapps.css'%}">
+{% endblock %}
+{% block mainbody %}
+<div class="row" >
+    <div class="col-2">
+        <!--侧边栏-->
+        <div class="padding_top sidebar p-2">
+       <ul class="nav nav-tabs" role="tablist">
+           <li class="nav-item">
+               {% block sidebar-title %}
+               <a class="nav-link active" data-toggle="tab" href="#home">Tools</a>
+               {% endblock %}
+           </li>
+       </ul>
+       <div class="tab-content">
+           <div id="home" class="container-fluid tab-pane active">
+               <br/>
+               <!-- 显示目录内容 -->
+               <ul class='bar_left'>
+                   {% block sidebar-menu %}
+                   <a href="{% url "messageBoard" %}" class="list-group-item list-group-item-action">MessageBoard</a>                                     
+                   <a href="{% url "autoBuild" %}" class="list-group-item list-group-item-action">AutoBuild</a>
+                   <a href="{% url "macApps" %}" class="list-group-item list-group-item-action active">MacApps</a>
+                   <a href="{% url "grrSheet" %}" class="list-group-item list-group-item-action">GRR&Overlay</a>
+                  {% endblock %}
+               </ul>
+           </div>
+       </div>
+       </div>
+   </div>
+    <div class="col-10 content_scroll"> 
+        <!--工具栏-->
+        <div style="padding: 2px 10px;"> 
+            <button class="btn btn-outline-primary btn-sm downloadtable" data-dtable="collection">下载汇总表</button>
+            <button class="btn btn-outline-primary btn-sm downloadtable" data-dtable="whiteList">下载白名单</button>
+            <button class="btn btn-outline-primary btn-sm downloadtable" data-dtable="allList">下载用户信息</button>
+            <button class="btn btn-outline-primary btn-sm downloadtable" id="DuserApps" data-dtable="personApp">下载用户Apps</button>  
+        </div>
+        <form method="post" action="downloadTable/" enctype="multipart/form-data" id="downloadTableForm"  style="display:none;">
+            <input id="downloadTableType" class="form-control" name="downloadTable">
+            <input type="submit" class="btn btn-success" >
+        </form>                   
+        <!--内容-->
+        {% block content %}
+        <div id='info_table'>
+        <table class="table table-bordered table-sm">
+            <tr>
+                <th class='th_top'><input class="form-control mr-sm-2 search_group " type="search" aria-label="Search" style="height:70%"></th>
+                <th class='th_top'><input class="form-control mr-sm-2 search_group " type="search" aria-label="Search" style="height:70%"></th>
+                <th class='th_top'><input class="form-control mr-sm-2 search_group " type="search" aria-label="Search" style="height:70%"></th>
+                <th class='th_top'><input class="form-control mr-sm-2 search_group " type="search" aria-label="Search" style="height:70%"></th>
+                <th class='th_top'><input class="form-control mr-sm-2 search_group " type="search" aria-label="Search" style="height:70%"></th>
+            </tr >
+            <tr style="height:30px;line-height: 30px;">
+                <th class='th_top_tech'>电脑财编</th>
+                <th class='th_top_tech'>上传时间</th>
+                <th class='th_top_tech'>通知人</th>
+                <th class='th_top_tech'>部门</th>
+                <th class='th_top_tech'>用户名</th>
+            </tr>
+            {%for line in records%}
+            {%if line.isUpload%}
+            <tr>
+                <td style="color:rgb(1, 145, 1)">{{line.number}}</td>
+                <td>{{line.uploadTime}}</td>
+                <td>{{line.attention}}</td>
+                <td>{{line.group}}</td>
+                <td>{{line.user}}</td>
+            </tr>
+            {%else%}
+            <tr>
+                <td style="color:rgba(255, 0, 0, 0.877)">{{line.number}}</td>
+                <td>{{line.uploadTime}}</td>
+                <td>{{line.attention}}</td>
+                <td>{{line.group}}</td>
+                <td>{{line.user}}</td>
+            </tr>
+            {%endif%}
+            {%endfor%}
+          </table> 
+        </div>  
+          <div id="application_div">
+                <table id="application_table" class="table table-bordered table-sm" style='float: left;'>
+                    <tr style="height:30px;line-height: 30px;">
+                        <th class='th_top_applications'colspan="2"style="text-align:center">Applications</th>
+                    </tr>                   
+                </table> 
+            </div>      
+        {% endblock %}
+    </div>
+</div>
+<br>
+
+{% endblock %}

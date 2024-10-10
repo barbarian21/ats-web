@@ -1,0 +1,133 @@
+{%extends "basehome.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>IssueList</title>
+{% endblock %}
+
+
+{% block mainhead %}
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src="{% static "bootstrap-table/dist/bootstrap-table.min.js"%}"></script>
+    <!-- bootstrap-table-editable.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"%}></script>
+    <!-- bootstrap-table-locale-all.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.min.js"%}></script>
+    <script type="text/javascript" src={% static "laydate/laydate.js"%}></script>
+    <style>
+        .selectTable{
+          scroll-y:visible;
+          position: absolute;
+		  width: auto;
+          z-index: 10;
+		  background-color: #E0E5E5;
+        }
+        /* th{
+            text-align:center;
+        } */
+        tbody{
+            white-space: nowrap;
+        }
+        td{
+            text-align:left;
+        }
+    </style>
+    <script type="text/javascript">
+        var ds=$(window).height();
+        $(function() {
+            $(".movie-content").height(ds);
+            $(".content_scroll").height(ds-$(".navbar").height());
+        })
+    </script>
+    
+{% endblock %}
+
+{% block sidebar-menu %}
+<div class="input-group mb-3">
+    <input id='searchRadar'  type="text" class="form-control" placeholder="Radar Number">
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary" type="button" onclick="searchRadar(this, value)" value='search'><i class="fas fa-search-plus"></i></button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header" id="FATP">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">FATP</button>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="FATP">
+        <div class="list-group">
+            <button onclick="sidebarHref(this, 'Handover')" value="target=Handover&station_category=FATP" class="list-group-item list-group-item-action active">Special Note</button>
+            <button onclick="sidebarHref(this, 'Action')" value="target=Action&station_category=FATP&status=open" class="list-group-item list-group-item-action">Open Action</button>
+            <button onclick="sidebarHref(this, 'Issue')" value="target=Issue&station_category=FATP&category=new" class="list-group-item list-group-item-action">QTx Issue List</button>
+            <button onclick="sidebarHref(this, 'ErsDoc')" value="target=ErsDoc&station_category=FATP" class="list-group-item list-group-item-action">ERS/DOC</button>
+            <button onclick="sidebarHref(this, 'TCRadar')" value="target=TCRadar&station_category=FATP" class="list-group-item list-group-item-action">TC Radar</button>
+            <button onclick="sidebarHref(this, 'Action')" value="target=Action&station_category=FATP&status=done" class="list-group-item list-group-item-action">Done Action</button>
+            <button onclick="sidebarHref(this, 'Issue')" value="target=Issue&station_category=FATP&category=fixed" class="list-group-item list-group-item-action">Fixed Issue</button>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header" id="SMT">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">SMT</button>
+    </div>
+    <div id="collapseOne" class="collapse" aria-labelledby="SMT">
+        <div class="list-group">
+            <button onclick="sidebarHref(this, 'Handover')" value="target=Handover&station_category=SMT" class="list-group-item list-group-item-action">Special Note</button>
+            <button onclick="sidebarHref(this, 'Action')" value="target=Action&station_category=SMT&status=open" class="list-group-item list-group-item-action">Open Action</button>
+            <button onclick="sidebarHref(this, 'Issue')" value="target=Issue&station_category=SMT&category=new" class="list-group-item list-group-item-action">QTx Issue List</button>
+            <button onclick="sidebarHref(this, 'ErsDoc')" value="target=ErsDoc&station_category=SMT" class="list-group-item list-group-item-action">ERS/DOC</button>
+            <button onclick="sidebarHref(this, 'TCRadar')" value="target=TCRadar&station_category=SMT" class="list-group-item list-group-item-action">TC Radar</button>
+            <button onclick="sidebarHref(this, 'Action')" value="target=Action&station_category=SMT&status=done" class="list-group-item list-group-item-action">Done Action</button>
+            <button onclick="sidebarHref(this, 'Issue')" value="target=Issue&station_category=SMT&category=fixed" class="list-group-item list-group-item-action">Fixed Issue</button>
+        </div>
+    </div>
+</div>
+
+   
+{% endblock %}
+
+{% block content %}
+<div id="function-menu" style='font-size:10px;display:block'>
+        <div class='float-right'>
+            <div id="standardColor1">
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Red" onclick="injectColor(value)" value = '#ff0000' style="background: #ff0000"></button>
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Green" onclick="injectColor(value)" value = '#008000' style="background: #008000"></button>
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Yellow" onclick="injectColor(value)" value = '#ffff00' style="background: #ffff00"></button>
+            </div>
+            <div id="standardColor1">
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Orange" onclick="injectColor(value)" value = '#ffa500' style="background: #ffa500"></button>
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Blue" onclick="injectColor(value)" value = '#0000ff' style="background: #0000ff"></button>
+                <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Black" onclick="injectColor(value)" value = '#000000' style="background: #000000"></button>
+                <button id = 'clear' type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Clear" onclick="clearColor()" style="background: #ffffff"></button>
+            </div>
+        </div>
+
+        <div class='float-left'>
+            <div>
+                <button type="button" class="btn btn-primary" title="save" onclick="saveTable()"><i class="fas fa-save"></i></button>
+                <a id="download" href="/issue/download/?station_category=FATP" class='btn btn-primary mr-3' title="download"><i class="fas fa-download"></i></a>
+            </div>
+        </div>
+</div>
+
+<!-- table view -->
+<div id = 'IssueCategory' style="text-align:center;">
+    <div id = 'PopList' style="direction:none;"></div>
+</div>
+<script type="text/javascript" src="{% static 'js/methodnew.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/IssueNew.js' %}">
+</script>
+{% endblock %}

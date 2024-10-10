@@ -1,0 +1,35 @@
+@charset 'utf-8';
+
+
+/* 左侧菜单 */
+.list-group-item-action.trigger{color: #212529; background-color: #e9ecef;}
+
+table thead tr th{white-space: nowrap; position: relative !important; top: 0;  overflow: hidden;}
+table tbody tr td{white-space: nowrap; word-wrap: break-word; vertical-align: middle !important; overflow: hidden;}
+
+/* 清除浮动 */
+.clear::before, .clear::after{display: block; content: ''; clear: both}
+
+#font-color{margin-top: 3px;}
+#quan-ping{font-size: 30px; line-height: 30px;}
+#font-color button{width: 30px; height: 30px;}
+
+.pointer:hover{cursor: pointer;}
+
+#category-menu>li:hover>ul{display: block !important; left: 99%; top: 2%;}
+
+#table-top{padding-top: 5px; padding-bottom: 5px; padding-right: 5px;}
+
+#info{top: 70px; right: 70px; width: 180px; text-align: center; padding: 10px 0; color: #fff; background: black; border-radius: 5px; z-index: 999; display: none;}
+
+#dianti{opacity: .7; bottom: 90px; right: 50px; font-size: 36px; line-height: 40px; background: orange; width: 40px; height: 40px; text-align: center; border-radius: 3px; cursor: pointer; display: none;}
+
+#page{margin-top: 1px; margin-left: 40px;}
+#page a{text-decoration-line: none; padding: 6px 12px; border: 1px solid #ddd; color: #428bca; border-radius: 4px; display: inline-block;}
+#page a:hover{color: #2a6496; background: #eee; border-color: #ddd;}
+#page a.active{color: #fff; background: #428bca; border-color: #428bca;}
+#page input{width: 56px; height: 34px; display: inline-block; margin-left: 5px; color: #428bca;}
+#page span{color: #428bca;}
+
+#kemu span{display: inline-block; padding: 10px; border-radius: 4px 4px 0 0; margin-bottom: -1px; z-index: 9; position: relative; top: 0; cursor: pointer;}
+#kemu span.active{color: #495057; background: #fff; border: 1px solid rgba(0,0,0,.125); border-bottom: none;}

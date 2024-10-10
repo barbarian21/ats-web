@@ -1,0 +1,52 @@
+<tr>
+    <th></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+
+</tr >
+<tr id="main_item" calss="thead">
+    <th class="th_top"></th>
+    <th class="th_top">Item</th>
+    <th class="th_top">Tech</th>
+    <th class="th_top">StopOnFail</th>
+    <th class="th_top">Disable</th>
+    <th class="th_top">mp</th>
+    <th class="th_top">eng</th>
+    <th class="th_top">grr</th>
+    <th class="th_top">rel</th>
+    <th class="th_top">LowerLimit</th>
+    <th class="th_top">UpperLimit</th>
+    <th class="th_top">Units</th>
+    <th class="th_top">Pattern</th>
+</tr>
+{%for item in station_tc%}
+<tr class="item">
+    <td>{{forloop.counter}}</td>
+    <!-- <td data-toggle="tooltip" data-placement="top" title={{item.description}}>{{item.name}}</td> -->
+    <td >{{item.name}}</td>
+    <td>{{item.tech}}</td>
+    <td >{{item.stoponfail}}</td>
+    <td >{{item.disable}}</td>
+    <td >{{item.mp}}</td>
+    <td >{{item.eng}}</td>
+    <td >{{item.grr}}</td>
+    <td >{{item.rel}}</td>
+    <td >{{item.limit.lowerLimit}}</td>
+    <td >{{item.limit.upperLimit}}</td>
+    <td >{{item.limit.units}}</td>
+    <td >{{item.limit.pattern}}</td>   
+</tr>
+{%endfor%}
+<script>
+    $('[data-toggle="tooltip"]').tooltip();
+</script>

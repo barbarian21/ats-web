@@ -1,0 +1,152 @@
+@charset 'utf-8';
+
+tr:not(.tech_items):hover {
+    background-color: rgba(76,175,80,0.2);
+}
+td,th{
+    white-space: nowrap;
+}
+
+tr th{
+   position:relative;
+   background-color:#eee;
+}
+
+.bar_left_tc {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow:auto;
+    background-color: #fff;
+    height: 100%;
+}
+
+.bar_left_tc li a {
+    display: block;
+    color: #000;
+    font-size:14px;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+.select{
+  background-color: rgba(76,175,80, 0.4);
+}
+
+.tr_hover{
+  background-color: rgba(76,175,80, 0.2);
+}
+
+.bar_left_tc li a:hover {
+    background-color: rgba(76,175,80,0.5);
+}
+
+.bar_left_tc li a:active {
+    background-color: #4CAF50;
+    color: white;
+}
+#home{
+  height:100%;
+  overflow:auto;
+}
+#search{
+  height:100%;
+}
+
+#right_screen{
+    background-color: #ffffff;
+    text-align:center;
+    height:100%;
+}
+#right_screen_main{
+  position: relative;
+    text-align:center;
+    padding: 10px;
+    overflow:scroll;
+    word-wrap:break-word;
+    word-break:break-all;
+    height: 55%;
+}
+
+#drap-line {
+    width:100%;
+    height: 10px;
+    background-color: #eee;
+    cursor: row-resize;
+}
+
+#right_screen_tech{
+    text-align:center;
+    padding: 10px;
+    height:37%;
+    overflow:scroll;
+    word-wrap:break-word;
+    word-break:break-all;
+    top:60%;
+}
+#right_screen_search{
+    text-align:center;
+    padding: 10px;
+    height:90%;
+    overflow:scroll;
+    word-wrap:break-word;
+    word-break:break-all;
+}
+
+.AutoNewline{
+    word-break:normal;
+    white-space: normal;
+}
+.sidebar{
+  transition: all 0.2s ease 0s;
+  width:240px;
+  position: absolute;
+  background-color: #eee;
+  padding:10px;
+}
+.tab_height{
+  height:80%;
+}
+
+.main{
+  left: 240px;
+  right: 0px;
+  position: absolute;
+  transition: all 0.2s ease 0s;
+  height:auto
+}
+.big-page .sidebar{
+  left: -240px;
+}
+.big-page .main{
+  left: 0;
+}
+.hidden_div{ 
+  margin: 0; 
+  position: fixed; 
+  overflow: auto; 
+  top: 0; 
+  right: 0; 
+  bottom: 0; 
+  left: 0; 
+  z-index: 999; 
+  outline: 0; 
+  opacity: 0.5; 
+  background: #000;
+  display:none; 
+}
+#menu_bar{
+  position: relative;
+  background-color: #fff;
+  padding:5px 10px;
+  height:40px;
+}
+#show_data,#tech_table{
+  font-size:13px;
+  text-align: left;
+}
+
+.card-header-cate{
+  margin-bottom: 0;
+  background-color: rgba(0,0,0,.03);
+  border-bottom: 1px solid rgba(0,0,0,.125);
+}

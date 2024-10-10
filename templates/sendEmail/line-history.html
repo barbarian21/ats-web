@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'sendEmail/metadata.html' %}
+
+        <link rel="stylesheet" href="/static/css/sendEmail/request-history.css">
+        <script src="/static/popper/dist/umd/popper.min.js"></script>
+        <script src="/static/js/sendEmail/line-history.js" defer="defer"></script>
+
+        <style>
+            .ui-autocomplete{max-height: 200px; overflow-y: auto; overflow-x: hidden;}
+            .ui-widget-overlay{opacity: .3; z-index: 9999;}
+            .ui-widget-content{border: none;}
+            .ui-dialog-titlebar-close i{font-size: 20px; line-height: 20px;}
+            #upload-form {
+                display: none;
+            }
+            #upload-form span {
+                width: 90px; display: inline-block;padding-top: 10px;
+            }
+            .ui-dialog {
+                font-size: 14px;
+            }
+            #manyupload-form{
+                display: none;
+            }
+            #manyupload-form span {
+                width: 80px; display: inline-block;
+            }
+            .margin-right{
+                margin-right: 15px;
+            }
+            .ul-nolist{
+                list-style-type: none;
+            }
+            #search-input{
+                width: 160px;
+                height: 30px;
+                display: inline-block;
+                margin-left: 5px;
+                margin-right: 5px;
+                font-size: 14px;
+            }
+
+            #search-kind{
+                width:100px;
+                height:30px;
+                display: inline-block;
+                padding: 1px 8px;
+                font-size: 14px;
+            }
+            #jump-input{
+                width: 60px;
+                height: 30px;
+                display: inline-block;
+                margin-left: 5px;
+                margin-right: 5px;
+                font-size: 14px;
+            }
+
+        </style>
+    </head>
+    <body>
+        {% include 'sendEmail/header.html' %}
+
+        <div class="container content">
+            <div class="row mt-1 mb-1">
+                <div class="col-sm-12">
+                    <div class="d-inline-block" style="float:left;">
+                        <select name="kind" id="search-kind" class="custom-select">
+                            <option value="sname">ghLS</option>
+                            <option value="lname">Line Name</option>
+                        </select>
+                        <input id="search-input" type="text" class="form-control">
+                        <input id="search-btn" class="btn btn-secondary btn-sm" type="button" value="搜索">
+                        {%if permission%}
+                        <div class="btn-group btn-group-toggle btn-sm" data-toggle="buttons">
+                            <label class="btn btn-secondary btn-sm" id="upload">
+                            <input type="radio" name="options" autocomplete="off" checked>添加
+                            </label>
+                            <label class="btn btn-secondary btn-sm" id="manyupload">
+                            <input type="radio" name="options" autocomplete="off">批量添加
+                            </label>
+                            <label class="btn btn-secondary btn-sm" id="delete">
+                            <input type="radio" name="options" autocomplete="off">删除
+                            </label>
+                            <label class="btn btn-secondary btn-sm" id="download">
+                                <input type="radio" name="options" autocomplete="off">下载
+                            </label>
+                        </div>
+                        {%endif%}
+                    </div>
+                    <div class="d-inline-block" style="float:right;">
+                        <div class="btn-group btn-group-toggle btn-sm" data-toggle="buttons">
+                                <label class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
+                                        <input type="radio" name="options" autocomplete="off">排序
+                                    </label>
+                                    <div class="dropdown-menu dropdown-menu" style="font-size: 14px;">
+                                        <a class="dropdown-item" href="#" data-order="ghLS_asc">按ghLS正序</a>
+                                        <a class="dropdown-item" href="#"data-order="ghLS_desc">按ghLS倒序</a>
+                                        <a class="dropdown-item" href="#"data-order="line_asc">按Line正序</a>
+                                        <a class="dropdown-item" href="#"data-order="line_desc">按Line倒序</a>
+                                    </div>
+                                    <p id="order_kind" style="display:none">ghLS_asc</p>
+                            <label class="btn btn-secondary btn-sm" data-page="first" data-attr="page">
+                              <input type="radio" name="options" autocomplete="off" checked>首页
+                            </label>
+                            <label class="btn btn-secondary btn-sm" data-page="prev" data-attr="page">
+                              <input type="radio" name="options" autocomplete="off">上一页
+                            </label>
+                            <label class="btn btn-secondary btn-sm" id="current" data-page="current">
+                              <input type="radio" name="options" autocomplete="off">1
+                            </label>
+                            <label class="btn btn-secondary btn-sm" data-page="next" data-attr="page">
+                                <input type="radio" name="options" autocomplete="off">下一页
+                            </label>
+                            <label class="btn btn-secondary btn-sm" data-page="last" data-attr="page">
+                                <input type="radio" name="options" autocomplete="off">尾页
+                            </label>
+                            <label class="btn btn-secondary btn-sm" id="pageNum">
+                                共3页
+                            </label>
+                        </div>
+                        <input id="jump-input" type="text" class="form-control" >
+                        <input class="btn btn-secondary btn-sm" type="button" value="跳转" data-page="jump" data-attr="jump">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    {% if server_lines %}
+                        <table class="table table-striped table-hover table-bordered" id="line_history">
+                            <thead class="thead-light">
+                                <tr id="table_head">
+                                    {%if permission%}
+                                        <th>
+                                            <input type="checkbox" id="select_all">全选
+                                        </th>
+                                    {%endif%}
+                                    <th>ghLS</th>
+                                    <th>Line Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="search_lresult">
+                                {% for server_line in server_lines %}
+                                    <tr data-lid="{{server_line.lid}}">
+                                        {%if permission%}
+                                            <td>
+                                                <input type="checkbox" id="{{server_line.lid}}" data-lname="{{server_line.lname}}">
+                                            </td>
+                                        {%endif%}
+                                        <td>
+                                            {{ server_line.sname }}
+                                        </td>
+                                        <td>
+                                            {{ server_line.lname }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <h6>暂无线体历史记录</h6>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-1 mb-3">
+                <div class="col-sm-12">
+                    <div style="float: left;">
+                        <span>显示第 <span id="line_start">1</span>  到第 <span id="line_end">{{pageSize}}</span> 条记录，总共 <span id="line_count">{{line_count}}</span> 条记录
+                            <span>每页显示
+                                <select id="select_pageSize" name="kind" style="width:50px">
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="All">All</option>
+                                </select>
+                                条记录</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-1 mb-1">
+                    <div class="col-sm-12">
+                        <p>Server:</p>
+                        <ul class="ul-nolist">
+                            {% if serverbyfactory %}
+                                {% for key,val in serverbyfactory.items %}
+                                <li>
+                                    {%for s in val%}
+                                        <a class="margin-right"  target="_blank" href='{{s.saddress}}'>{{s.sname}}</a>
+                                    {%endfor%}
+                                </li>
+                                {% endfor %}
+                                {% else %}                                  
+                                {% endif %}      
+                        </ul>
+                    </div>
+                </div>
+        </div>
+        <div id="upload-form">
+            <div>
+                <span>ghLS：</span>
+                <select id="upload-sname">
+                    {% if servers %}
+                        {% for server in servers %}
+                            <option value="{{ server.sname}}">{{ server.sname}}</option>
+                        {% endfor %}
+                    {% else %}
+                        <option value="">No Server</option>
+                    {% endif %}  
+                </select>
+                <!-- <input type="text" id="upload-sname"> -->
+            </div>
+            <div>
+                <span>Line Name：</span>
+                <input type="text" id="upload-lname">
+            </div>
+        </div>
+
+        <div id="manyupload-form">
+            <div>
+                <span>附件：</span>
+                <input type="file" id="manyupload-file">
+            </div>
+        </div>
+        {% include 'sendEmail/footer.html' %}
+    </body>
+</html>
+<!--如果是没有权限，就弹框显示，并跳转页面-->
+{% if messages %}
+<script>
+    {%for msg in messages %}
+        alert('{{ msg.message }}');
+    {% endfor %}
+</script>
+{% endif %}

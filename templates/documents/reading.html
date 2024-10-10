@@ -1,0 +1,119 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}<title>{{ name|capfirst }}</title>{% endblock %}
+
+{% block mainhead %}
+<script src="{% static "marked/lib/marked.js" %}"></script>
+<link href="{% static "highlight/styles/default.css" %}" rel="stylesheet">
+<script src="{% static "highlight/highlight.pack.js" %}"></script>
+<!-- 引入 fontawesome -->
+<link href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+<style>
+    h2 {
+        font-weight: normal;
+        line-height: 4rem;
+    }
+
+    #contentnav {
+        -ms-flex: 0 0 20%;
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+
+    #reading {
+        -ms-flex: 0 0 75%;
+        flex: 0 0 75%;
+        max-width: 75%;
+        margin-left: 2.5%;
+    }
+
+    #reading p,
+    #reading ol,
+    #reading ul {
+        line-height: 2rem;
+    }
+
+    #reading ol {
+        padding-left: 20px;
+    }
+
+    #related_func a {
+        color: #444;
+        text-decoration: none;
+    }
+
+    #related_func a:hover {
+        color: black;
+    }
+</style>
+{% endblock %}
+
+{% block mainbody %}
+<div class="row mt-5" style="margin: 0;">
+    <div id="contentnav" class="px-3">
+        {% include 'documents/content.html' %}
+    </div>
+    <div id="reading" class="px-3" style="border-left: 1px solid rgb(237,237,237)">
+        <h1 class="mb-5" style="text-align: center;">{{ name | capfirst }}</h1>
+        <div id="doc">
+            <script>
+                let doc = "{{ doc }}".replace(/&quot;/g, "\"");
+                var rendererMD = new marked.Renderer();
+                marked.setOptions({
+                    renderer: rendererMD,
+                    smartLists: false,
+                });
+                rendererMD.table = function table(header, body) {
+                    if (body) body = '<tbody>' + body + '</tbody>';
+                    return '<table class="table table-striped">\n' + '<thead>\n' + header + '</thead>\n' + body + '</table>\n';
+                };
+                $("#doc").html(marked(doc));
+            </script>
+        </div>
+        {% if flow %}
+        <div id="flow">
+            <h2>流程图</h2>
+            <embed src="data:application/pdf;base64,{{ flow }}" width="100%" height="1000px">
+            <hr>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block last %}
+<script>
+    $(document).ready(function () {
+        //首先获取导航栏距离浏览器顶部的高度
+        var top = $('#contentnav').offset().top;
+        //开始监控滚动栏scroll
+        $(document).scroll(function () {
+            //获取当前滚动栏scroll的高度并赋值
+            var scrTop = $(window).scrollTop();
+            //开始判断如果导航栏距离顶部的高度等于当前滚动栏的高度则开启悬浮
+            if (scrTop >= top) {
+                $('#contentnav').css({ 'position': 'fixed', 'top': '0' });
+                $('#reading').css({
+                    '-ms-flex': '0 0 75%',
+                    'flex': '0 0 75%',
+                    'max-width': '75%',
+                    'margin-left': '22.5%',
+                });
+            }
+            else {//否则清空悬浮
+                $('#contentnav').css({ 'position': '', 'top': '' });
+                $('#reading').css({
+                    '-ms-flex': '0 0 75%',
+                    'flex': '0 0 75%',
+                    'max-width': '75%',
+                    'margin-left': '2.5%',
+                });
+            }
+        })
+    })
+</script>
+{% endblock %}

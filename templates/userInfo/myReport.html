@@ -1,0 +1,434 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>myReport</title>
+{% endblock %}
+
+{% block mainhead %}
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- bootstrap-table-editable.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"%}></script>
+    <!-- bootstrap-table-locale-all.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!--bootstrap-table-filter-control.min.js-->
+    <script src={% static "bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js"%}></script>
+
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.js"%}></script>
+
+    <script type="text/javascript" src={% static "laydate/laydate.js"%}></script>
+
+    <style>
+        tr:hover {
+            background-color: rgba(76,175,80,0.3);
+        }
+        td{
+            white-space: nowrap;
+            max-height: 200px;
+            max-width: 400px;
+        }
+        #page-content-wrapper {
+            padding-left: 10px;
+            padding-right: 10px;
+            width: auto;
+            overflow:scroll;
+        }
+        .colStyle {
+            text-overflow: ellipsis;
+            overflow: scroll;
+            white-space: normal;
+        }
+    </style>
+
+    <script type="text/javascript">
+        var reportType="OpenAction"
+        //调整页面高度
+        function adjustHeight(){
+            var content_height=ds-$(".navbar").height();
+            $(".movie-content").height(content_height);
+            $(".content_scroll").height(content_height);
+        }
+
+        function initTable() {
+            $('#table').bootstrapTable('destroy').bootstrapTable({
+            exportDataType: "all",
+            exportTypes:['csv','excel','xml','txt','json', 'sql',],
+            fileName: 'tableExport',
+            exportOptions: {
+                ignoreColumn: [0, 0],            //忽略某一列的索引
+                fileName: 'overlay_list',
+            },
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            columns: [
+            {
+                field: 'operate',
+                clickToSelect: false,
+                align: 'center',
+                formatter: function(value, row, index) {
+                    return [
+                    '<a class="editor" href="javascript:void(0)" title="Editor" style="margin-right: 10px;">',
+                    '<i class="fa fa-edit"></i>',
+                    '</a>',
+                    '<a class="remove" href="javascript:void(0)" title="Remove">',
+                    '<i class="fa fa-trash"></i>',
+                    '</a>'
+                    ].join('')
+                },
+                events: operateEvents,
+            },{
+                field: 'id',
+                title: 'ID',
+                sortable: true,
+                visible:false
+            },{
+                field: 'fatory',
+                title: '工厂名称',
+                sortable: true,
+                visible:false
+            },{
+                field: 'projectBuildStage',
+                title: '专案-阶段',
+                sortable: true,
+                visible:false
+
+            },{
+                field: 'station',
+                title: '站位',
+                sortable: true,
+            },{
+                field: 'status',
+                title: '状态',
+                sortable: true,
+                cellStyle: function(value, row, index){
+                    if(value == 'New'){
+                        return {css:{'background-color':'red',}}
+                    }
+                    else if(value == 'Ongoing'){
+                        return {css:{'background-color':'yellow',}}
+                    }
+                    else if(value == 'Done'){
+                        return {css:{'background-color':'green',}}
+                    }
+                    return {}   
+                }
+            },{
+                field: 'category',
+                title: '分类',
+                sortable: true,
+            }, {
+                field: 'Description',
+                title: '报告描述',
+                sortable: false,
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='width:400px;'>"+value+"</div>";
+                    return div;
+                },
+            }, {
+                field: 'cocoDRI',
+                title: 'CocoDRI',
+                sortable: true,
+                visible:false
+            }, {
+                field: 'radarNumber',
+                title: '雷达号',
+                sortable: true,
+                visible:false
+            },{
+                field: 'note',
+                title: '备注',
+                filterControl: 'checkbox',
+                class: 'colStyle',
+                formatter : function(value, row, index){
+                    var div = "<div style='width:300px;'>"+value+"</div>";
+                    return div;
+                },
+            },{
+                field: 'author',
+                title: 'Author',
+                visible:false
+            },{
+                field: 'updateTime',
+                title: '更新时间',
+                sortable: true,
+                visible:false
+            }],
+            onLoadError: function () {
+                console.log("数据加载失败！");
+            },
+        });
+    }
+
+        function queryParams(params) {
+            return {para : reportType};
+        }
+
+        $(function() {
+            initTable();
+            adjustHeight();
+
+            $(".reportCategroy").click(function(){
+                //得到选中的reportType
+                reportType=$(this)[0].innerHTML
+                //选中的背景变化
+                changeStationBgColor(this);
+                //重新加载table
+                initTable();
+            });
+
+            //add rows
+            $('#addForm-submit').click(function() {
+                var addData = $('#add-form').serializeArray();
+                $.ajax({
+                    url: "{% url 'reportAddRow' %}",
+                    type: "post",
+                    data: addData,
+                    dataType:'json',
+                    success: function (data,status) {
+                        if(status == 'success'){
+                            if(data.refresh){
+                                $('#table').bootstrapTable('refresh');
+                            }else{
+                                $('#table').bootstrapTable('insertRow', {
+                                    index: 0,
+                                    row: data.data,
+                                });
+                            }
+                            $('#close-addForm').click();
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+            });
+
+        })
+
+        window.operateEvents = {
+        'click .editor': function (e, value, row, index) {
+            var regex = /<br\s*[\/]?>/gi;
+            $("#editor_id").val(row.id);
+            $("#editor_fatory").val(row.fatory);
+            $("#editor_projectBuildStage").val(row.projectBuildStage);
+            $("#editor_station").val(row.station);
+            $("#editor_status").val(row.status);
+            $("#editor_category").val(row.category);
+            $("#editor_radar").val(row.radarNumber);
+            $("#editor_coco_DRI").val(row.cocoDRI);
+            $("#editor_description").val(row.Description.replace(regex,'\r\n'));
+            $("#editor_note").val(row.note.replace(regex,'\r\n'));
+    
+            $('#modalTable-add').modal('show');
+        },
+        'click .remove': function (e, value, row, index) {
+            var message =  "确定删除这条记录?";
+            if (confirm(message)==true) {
+                $.ajax({
+                    url: "{% url 'ReportRemoveRow' %}",
+                    type: "post",
+                    data: {
+                        'id': row.id
+                    },
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if (data == '0' && status == 'success') {
+                            $("#table").bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            });
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+            }
+        }
+    };
+
+
+        function changeStationBgColor(a_reportCate){
+            var reportCate=document.getElementsByClassName('reportCategroy');
+
+            for(i=0;i<reportCate.length;i++){
+                if(a_reportCate==reportCate[i]){
+                    reportCate[i].style.background="#B0E2FF";
+                    reportCate[i].style.color="white";
+                }else{
+                    reportCate[i].style.background="#fff";
+                    reportCate[i].style.color="#666";
+                }
+            }
+        }
+
+
+
+    </script>
+{% endblock %}
+
+
+{% block sidebar-menu %}
+    <a href="{% url "myInfo" %}" class="list-group-item list-group-item-action">个人信息</a>
+    <a href="myReport/" class="list-group-item list-group-item-action active" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">日志</a>
+    <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
+        <div class="list-group">
+            <a class="reportCategroy list-group-item list-group-item-action" href="#">OpenAction</a>
+            <a class="reportCategroy list-group-item list-group-item-action" href="#">DoneAction</a>
+            <a class="reportCategroy list-group-item list-group-item-action" href="#">History</a>
+        </div>
+    </div>
+    <a href="{% url "statistics" %}" class="list-group-item list-group-item-action ">统计</a>
+{% endblock %}
+
+{% block  content%}
+<div   id="page-content-wrapper">
+    <div id="toolbar">
+        <div class="btn-group mr-2" role="group" aria-label="First group">
+            <button id="btn_add" class="btn btn-secondary" data-toggle="modal" data-target="#modalTable-add">
+                <span class="glyphicon glyphicon-plus"></span>Add
+            </button>
+        </div>
+    </div>
+
+    <table id="table"
+            data-url="{% url "myReportGetData" %}"
+            data-method	= "post"
+            data-query-params = "queryParams"
+
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-pagination-switch="true"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-export="true"
+
+            data-click-to-select="true"
+            data-sort-order="desc"
+            data-sort-name="update_time"
+            data-filter-control="true"
+
+            data-pagination="true"
+            data-side-pagination="client"
+            data-page-list="[5, 10, 25, 50, 100,]"
+            data-page-number = "1"
+            data-page-size = "25"
+            data-pagination-pre-text = "上一页"
+            data-pagination-next-text = "下一页">
+        </table>
+
+    <!-- modal-dialog for Add button -->
+    <div id="modalTable-add" class="modal fade" tabindex="-1" role="dialog" >
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="width: 700px;">
+                <div class="modal-header">
+                    <h5 id="modalTitle" class="modal-title" >工作报告</h5>
+                    <button id="close-addForm" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form  id="add-form" class='form-check' >
+                        <div class="form-row">
+                            <div class="form-group col-md-1 " style="display: none;">
+                                <label for="id">ID</label>
+                                <input id='editor_id' type="text" class="form-control" name="id">
+                            </div>
+                            <div class="form-group col-md-2">
+                                <label for="fatory">工厂名称 </label>
+                                <select id='editor_fatory' class="form-control" name="fatory">
+                                    <option value="F2">F2</option>
+                                    <option value="F5">F5</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="projectBuildStage">专案-阶段</label>
+                                <select id='editor_projectBuildStage' class="form-control" name="projectBuildStage">
+                                    <option value="Mongoose-EVT">Mongoose-EVT</option>
+                                    <option value="Mongoose-CRB">Mongoose CRB</option>
+                                    <option value="Mongoose-DVT">Mongoose-DVT</option>
+                                    <option value="Mongoose-PVT">Mongoose-PVT</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-4">
+                                <label for="station">站位</label>
+                                <select id='editor_station' class="form-control" name="station">
+                                    <option value="CG-Sesnor">CG-Sesnor</option>
+                                    <option value="HSG-Buttonflex">HSG-Buttonflex</option>
+                                    <option value="HSG-LCR">HSG-LCR</option>
+                                    <option value="CT1">CT1</option>
+                                    <option value="CG-install">CG-install</option>
+                                    <option value="QT0">QT0</option>
+                                    <option value="QT1">QT1</option>
+                                    <option value="QT2">QT2</option>
+                                    <option value="QT0B">QT0B</option>
+                                    <option value="Other station">Other station</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                <label for="status">状态</label>
+                                <select id='editor_status' class="form-control" name="status">
+                                    <option value="New">New</option>
+                                    <option value="Ongoing">Ongoing</option>
+                                    <option value="Done">Done</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>分类</label>
+                                <select id='editor_category' class="form-control" name="category">
+                                    <option value="Overlay">Overlay (发overlay需求，验证，写报告，导线等等)</option>
+                                    <option value="Request">Request (处理客户需求来自雷达、邮件，imessage等，ERS文件，DOE、command验证，Loop test等等)</option>
+                                    <option value="DryrunIssue">Dryrun issue (log分析，建雷达，root特殊文件(usbfs)等)</option>
+                                    <option value="OnlineIssue">Online issue (建雷达，设COF，签机台，查SFIS，Bobcat，产线异常处理等)</option>
+                                    <option value="Report">Report (Dryrun report/Retest/Yield/QTx issue and action)</option>
+                                    <option value="IFA">IFA (FA的机台处理)</option>
+                                    <option value="Data analysis">Data analysis (build进行到一定阶段，捞取产线数据分析，画分布图，有问题要highlight给客户)</option>
+                                    <option value="Other">Other (Test coverage，GRR，station setup，station readness 维护等等)</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label >雷达号</label>
+                                <input id='editor_radar' type="text" class="form-control" name="radar">
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label >Coco DRI</label>
+                                <input id='editor_coco_DRI' type="text" class="form-control"  name="coco_DRI">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">工作描述</label>
+                            <textarea id='editor_description' type="text" class="form-control" name="description" rows="12" required></textarea>
+                       
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="note">备注</label>
+                            <textarea id='editor_note' type="text" class="form-control" name="note" rows="5"></textarea>
+                        </div>
+                        <button id="addForm-submit" class="btn btn-primary pull-center" >提交</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

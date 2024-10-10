@@ -1,0 +1,185 @@
+<!-- 继承basehome.html页面 -->
+{% extends 'basehome.html' %}
+
+<!-- 替换掉title -->
+{% block title %}
+	<title>issue</title>
+{% endblock %}
+
+<!-- 添加额外的head标签 -->
+{% block mainhead %}
+	<!-- js -->
+	<script>
+		// 判断操作系统
+		function isWindows(){
+			return isWin = navigator.platform=='Win32' || navigator.platform=='Windows';
+		}
+
+
+		// 美化滚动条
+		function beautifulScroll(){
+			if(isWindows())
+				document.write('<link rel="stylesheet" href="/static/css/scroll.css">');
+		}
+
+		// 美化滚动条
+		beautifulScroll();
+	</script>
+	<!-- js end -->
+
+	<!-- css -->
+	<link rel="stylesheet" href="/static/css/jquery-ui.css">
+	<link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/static/css/jedate_tito.css">
+	<link rel="stylesheet" href="/static/css/issue_tito.css">
+	<!-- css end -->
+
+	<!-- js -->
+	<script src="/static/js/jquery-ui.js" defer="defer"></script>
+	<script src="/static/js/method.js" defer="defer"></script>
+	<!-- js end -->
+{% endblock %}
+
+<!-- 添加左侧菜单栏 -->
+{% block sidebar-menu %}
+	<div class="input-group mb-3">
+		<input type="text" class="form-control" placeholder="输入雷达号" id="search-content">
+		<div class="input-group-append">
+			<button type="button" class="btn btn-outline-secondary" id="search">搜索</button>
+		</div>
+	</div>
+	<div id="kemu">
+		<span id="fatp" class="active" data-selected="true">FATP</span>
+		<span id="smt" data-selected="false">SMT</span>
+	</div>
+	{% for table in tables %}
+		<a href="javascript:void(0);" class="list-group-item list-group-item-action" data-nav="nav">{{ table }}</a>
+	{% endfor %}
+{% endblock %}
+
+<!-- 添加右侧表格 -->
+{% block content %}
+	<div class="shadow clear" id="table-top">
+		<div class="float-left" id="font-color">
+			<i class="fa fa-angle-double-left pointer ml-2" id="quan-ping"></i>
+			<button style="background: #000000"></button>
+			<button style="background: #ff0000"></button>
+			<button style="background: #0000ff"></button>
+		</div>
+		<div id="page" class="d-inline-block">
+			<a href="javascript: void(0);" data-page="first" data-attr="page" data-tarpage="1">首页</a>
+			<a href="javascript: void(0);" data-page="prev" data-attr="page" data-tarpage="1">上一页</a>
+			<a href="javascript: void(0);" class="active" data-page="current">1</a>
+			<a href="javascript: void(0);" data-page="next" data-attr="page" data-tarpage="1">下一页</a>
+			<a href="javascript: void(0);" data-page="last" data-attr="page" data-tarpage="1">末页</a>
+			<input type="text" class="form-control" data-page="jump-input">
+			<a href="javascript: void(0);" data-page="jump" data-attr="jump">跳转</a>
+			<span data-page="total" data-total="">共10页</span>
+		</div>
+		<div class="float-right">
+			<div class="btn-group">
+				<button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">排序</button>
+				<div class="dropdown-menu" aria-labelledby="dropdownMenu1" id="sort">
+					<button class="dropdown-item" type="button" data-sort="default"><i class="fa fa-check"></i>默认</button>
+					<button class="dropdown-item" type="button" data-sort="update-desc"><i class="fa fa-check" style="display: none;"></i>按更新时间降序</button>
+					<button class="dropdown-item" type="button" data-sort="update-asc"><i class="fa fa-check" style="display: none;"></i>按更新时间升序</button>
+					<button class="dropdown-item" type="button"
+					data-sort="add-desc"><i class="fa fa-check" style="display: none;"></i>按添加时间降序</button>
+					<button class="dropdown-item" type="button" data-sort="add-asc"><i class="fa fa-check" style="display: none;"></i>按添加时间升序</button>
+				</div>
+			</div>
+			
+			<div class="btn-group">
+	    		<button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="dropdownMenu2">显示列</button>
+				<div class="dropdown-menu" id="display-col" aria-labelledby="dropdownMenu2"></div>
+			</div>
+			
+			<a href="javascript:void(0);" class="btn btn-primary" id="download">Download</a>
+			<button type="button" class="btn btn-primary" id="add">Add</button>
+			<button type="button" class="btn btn-primary" id="save">Save</button>
+		</div>
+	</div>
+	<div class="content_scroll scroll" id="table">
+		<table class="table table-bordered table-striped table-hover">
+			<thead class="thead-light">
+				<tr id="search"></tr>
+				<tr id="fields"></tr>
+			</thead>
+			<tbody></tbody>
+		</table>
+	</div>
+{% endblock %}
+
+<!-- 添加菜单和位于页面末尾的js代码 -->
+{% block last %}
+	<!-- status菜单 -->
+	<ul class="list-group position-absolute pointer d-none" id="status-menu" data-tag="menu" data-open="false" data-menu="status">
+		{% for aStatus in status %}
+		  	<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="{{ aStatus.status }}" data-bg="{{ aStatus.bg }}" data-func="status">{{ aStatus.status }}</li>
+	  	{% endfor %}
+	</ul>
+
+	<!-- category菜单 -->
+	<ul class="list-group position-absolute pointer d-none" id="category-menu" data-tag="menu" data-open="false" data-menu="category">
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block">New Issue</span>
+			<ul class="list-group position-absolute pointer d-none">
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="New Issue" data-bg="#ff0000" data-func="category">Red</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="New Issue" data-bg="#008000" data-func="category">Green</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="New Issue" data-bg="#ffff00" data-func="category">Yellow</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="New Issue" data-bg="#ffa500" data-func="category">Orange</li>
+			</ul>
+		</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block">Retest Issue</span>
+			<ul class="list-group position-absolute pointer d-none">
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Retest Issue" data-bg="#ff0000" data-func="category">Red</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Retest Issue" data-bg="#008000" data-func="category">Green</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Retest Issue" data-bg="#ffff00" data-func="category">Yellow</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Retest Issue" data-bg="#ffa500" data-func="category">Orange</li>
+			</ul>
+		</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block">Known Issue</span>
+			<ul class="list-group position-absolute pointer d-none">
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Known Issue" data-bg="#ff0000" data-func="category">Red</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Known Issue" data-bg="#008000" data-func="category">Green</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Known Issue" data-bg="#ffff00" data-func="category">Yellow</li>
+				<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="Known Issue" data-bg="#ffa500" data-func="category">Orange</li>
+			</ul>
+		</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block" data-val="Keep Monitor" data-bg="#008000" data-func="category">Keep Monitor</span>
+		</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block" data-val="Close Issue" data-bg="#008000" data-func="category">Close Issue</span>
+		</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action">
+			<span class="d-block" data-val="Fixed Issue" data-bg="#008000" data-func="category">Fixed Issue</span>
+		</li>
+	</ul>
+
+	<!-- background菜单 -->
+	<ul class="list-group position-absolute pointer d-none" id="background-menu" data-tag="menu" data-open="false" data-menu="background">
+		{% for aBackground in background %}
+		  	<li class="list-group-item list-group-item-secondary list-group-item-action" data-bg="{{ aBackground.bg }}" data-func="background">{{ aBackground.des }}</li>
+	  	{% endfor %}
+	</ul>
+
+	<!-- 加载站位信息 -->
+	<ul class="list-group position-absolute pointer d-none" id="station-menu" data-tag="menu" data-open="false" data-menu="stations"></ul>
+
+	<!-- 提示信息 -->
+	<div id="info" class="position-fixed"></div>
+
+	<!-- 电梯 -->
+	<i class="fa fa-angle-double-up position-fixed" id="dianti"></i>
+
+	<!-- confirm -->
+	<div id="confirm" title="提示信息："></div>
+
+	<!-- js -->
+	<script src="/static/js/jedate.min_tito.js" defer="defer"></script>
+	<script src="/static/js/issue.js" defer="defer"></script>
+	<!-- js end -->
+{% endblock %}

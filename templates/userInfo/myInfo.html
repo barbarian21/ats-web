@@ -1,0 +1,214 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>myInfo</title>
+{% endblock %}
+
+{% block mainhead %}
+     <style type="text/css">
+        .mycenter{
+	        margin-top: 0px;
+	        margin-left: 25%;
+	        margin-right: auto;
+	        padding: 5%;
+        }
+        .footer-bottom{
+            position:fixed;
+            bottom: 0px;
+        }
+        /*图片预览容器*/
+        .img-prev-container{
+            width: 100px;
+            height: 100px;
+            margin:10px 10px;
+            border:1px solid #ccc;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+        }
+        /*预览图片样式*/
+        .img-prev-container img{
+            width: 100%;
+            height: 100%;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+        }
+    </style>
+    <script >
+        //简化 document.getElementById() 函数
+        function getDomById(id){
+            return document.getElementById(id);
+        }
+
+        //图片预览处理函数
+        function showPrevImg(_img_container,_img_src){
+            var _imgs = _img_container.getElementsByTagName('img');     //添加预览图片到容器框
+            //容器中没有则创建，有则修改 src 属性
+            if(_imgs.length==0){                  
+                let _img = document.createElement('img');
+                _img.setAttribute('src',_img_src);
+                _img_container.appendChild(_img);
+            }else{
+                _imgs[0].setAttribute('src',_img_src);
+            }
+        }
+
+        function validateImg(file){
+            /*图片类型正则验证*/
+            var imgStr = /\.(jpg|jpeg|png|bmp|BMP|JPG|PNG|JPEG)$/;
+            if(!imgStr.test(file.name)) {
+                alert("文件不是图片类型");
+                return false;
+            } else {
+                /*图片大小*/
+                var imagSize = file.size;
+                if(imagSize < (1024 * 1024 * 1)) {
+                    return true;
+                } else {
+                    alert(file.name + "大小不能超过" + 1 + "M");
+                    return false;
+                }
+            }
+        }
+
+        $(function (){
+            var _img_container = getDomById('img-perv-div')     //预览图的容器
+            var reader = new FileReader();            //创建reader对象
+
+            //触发 change 事件
+            getDomById('imgfileSelecter').onchange = function(event){
+                var file = event.target.files[0];                //获取文件对象
+
+                //读取完成后触发
+                reader.onload = function(ev){
+                    var _img_src = ev.target.result;    //获取图片的url
+                    showPrevImg(_img_container,_img_src);   //添加预览图片到容器框
+                }
+                reader.readAsDataURL(file);         //获取到数据的url 图片将转成 base64 格式
+            }
+
+            //添加拖放支持
+            _img_container.addEventListener('dragover',function(ev){
+                ev.preventDefault();    //阻止默认事件。比如说Chrome是直接将图片用浏览器打开
+            },false)
+
+            _img_container.addEventListener('drop',function(ev){
+                ev.preventDefault();
+                valiResult=validateImg(ev.dataTransfer.files[0])           //验证文件是否是图片
+
+                if (valiResult){
+                    $("#imgfileSelecter")[0].files=ev.dataTransfer.files    //将拖拽的文件，赋值给input
+                        reader.onload = function(ev){
+                        var _img_src = ev.target.result;        //获取图片的url
+                        showPrevImg(_img_container,_img_src);   //图片预览处理
+                    }
+                    reader.readAsDataURL(ev.dataTransfer.files[0])
+                }
+            },false)
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block sidebar-menu %}
+    <a href="{% url "myInfo" %}" class="list-group-item list-group-item-action active">个人信息</a>
+    <a href="{% url "myReport" %}" class="list-group-item list-group-item-action">日志</a>
+    <a href="{% url "statistics" %}" class="list-group-item list-group-item-action ">统计</a>
+{% endblock %}
+
+{% block  content%}
+    <div class="mycenter">
+    <form class='form-login' action="/myInfo/" method="post" enctype="multipart/form-data">
+         <div class="form-group">
+             {% if message %}
+                 <div class="alert alert-warning text-center">{{ message }}</div>
+             {% endif %}
+         </div>
+            <div class="form-group" style="float:right">
+                <div class="img-prev-container" id="img-perv-div">
+                    {%if myInfo.imageAddress%}
+                        <img src="{{myInfo.imageAddress}}" />
+                    {%else%}
+                        <img src="/static/img/userImg/base_img.png" />
+                    {%endif%}
+                </div>  
+                <input type="file" value="请选择图片" id="imgfileSelecter" name="imgfile" accept="image/*" />        
+            </div>
+
+            <div class="form-group">
+                <label for="id_username">用户名：</label>
+                <label>{{ myInfo.username }}</label>
+            </div>
+
+            <div class="form-group">
+                <label>工号：</label>
+                <label>{{ myInfo.workID }}</label>
+            </div>
+
+            <div class="form-group">
+                <label >姓名：</label>
+                <label>{{ myInfo.displayName }}</label>
+            </div>
+
+            <div class="form-group">
+                <label>邮箱：</label>
+                <label>{{ myInfo.email }}</label>
+            </div>
+
+            <div class="form-group">
+                <label>部门：</label>
+                <label>{{ myInfo.department.name }}</label>
+            </div>
+
+           <div class="form-group">
+               <label>性别：</label>
+                {% if myInfo.gender == 'male' %}
+                    <input type="radio" name="id_gender" value="male" checked="checked"> 男
+                    <input type="radio" name="id_gender" value="female"> 女
+               {% elif myInfo.gender == 'female' %}
+                    <input type="radio" name="id_gender" value="male" > 男
+                    <input type="radio" name="id_gender" value="female" checked="checked"> 女
+               {% else %}
+                    <input type="radio" name="id_gender" value="male"> 男
+                    <input type="radio" name="id_gender" value="female"> 女
+               {% endif %}
+
+            </div>
+
+            <div class="form-group">
+                <label>简码：</label>
+                <input type="text" name='id_mvpn'  value={{ myInfo.mvpn }}>
+            </div>
+
+            <div class="form-group">
+                <label>手机：</label>
+                <input type="text" name='id_mobile'  value={{ myInfo.mobile }}>
+            </div>
+
+            <div class="form-group">
+                <label>职位：</label>
+                <input type="text" name='id_position'  value="{{ myInfo.position }}">
+            </div>
+
+            <div class="form-group">
+                <label>专案：</label>
+                <label>{{ myInfo.str_projects  }}</label>
+            </div>
+
+            <div class="form-group">
+                <label>登陆时间：</label>
+                <label>{{ myInfo.last_login|date:"Y-m-d H:i:s"  }}</label>
+            </div>
+
+            <div class="form-group">
+                <label>创建时间：</label>
+                <label>{{ myInfo.date_joined|date:"Y-m-d H:i:s"  }}</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary pull-center">提交</button>
+    </form>
+    </div>
+{% endblock %}

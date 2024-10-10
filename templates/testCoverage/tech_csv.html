@@ -1,0 +1,77 @@
+<tr>
+    <th></th>
+    <th><input class="form-control mr-sm-2 search_group" type="search" aria-label="Search" style="height:70%"></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+</tr >
+<tr>
+    <th class="th_top"></th>
+    <th class="th_top">Item</th>
+    <th class="th_top">TestActions</th>
+    <th class="th_top">TestParameters</th>
+    <th class="th_top">TestCommands</th>
+    <th class="th_top">StopOnError</th>
+</tr>
+{%for item in station_tc%}
+    {%for act in item.logic%}
+        <tr class="item tech_items {{item.name}}">
+            {%if forloop.first%}
+                <td rowspan="{{item.logic|length}}">{{forloop.parentloop.counter}}</td>
+                <td rowspan="{{item.logic|length}}"  style="width:600px;white-space: normal;">{{item.name}}</td>
+            {%else%}
+            {%endif%}
+            <td>{{act.TestActions}}</td>
+            <td  style="width:1000px;white-space: normal;">{{act.TestParameters}}</td>
+            <td  style="width:500px;white-space: normal;color:blue" >{{act.TestCommands}}</td>
+            <td>{{act.StopOnError}}</td>
+        </tr>
+    {%endfor%}
+{%endfor%}
+
+
+<script type="text/javascript">
+    $(function(){
+      $(document).on("mouseover","tr.tech_items",function(e){
+        if($(this.children).length>5){
+                //得到这个测项的测项名
+                var item_name=$(this.children[1])[0].innerText;
+                //给点击测项的所有行添加背景
+                $("tr."+item_name).addClass("tr_hover")
+            }else{
+                //Tech中，测项非第一行
+                //得到该行所有的class name
+                var attrs=$(this).attr("class").split(" ")
+                //刷选出有测项名字的class
+                for(a=0;a<attrs.length;a++){
+                    if(attrs[a]!="item" && attrs[a]!="tech_items" && attrs[a]!="select" && attrs[a]!="tr_hover"){
+                        item_name=attrs[a]
+                    }
+                }
+                $("tr."+item_name).addClass("tr_hover")              
+            }
+      });
+
+      $(document).on("mouseout","tr.tech_items",function(e){
+        if($(this.children).length>5){
+                //得到这个测项的测项名
+                var item_name=$(this.children[1])[0].innerText;
+                //tech中所有行，移除选中的背景
+                $("tr.tech_items").removeClass("tr_hover")
+            }else{
+                //点击Tech中，测项非第一行
+                //得到该行所有的class name
+                var attrs=$(this).attr("class").split(" ")
+                //刷选出有测项名字的class
+                for(a=0;a<attrs.length;a++){
+                    if(attrs[a]!="item" && attrs[a]!="tech_items" && attrs[a]!="select" && attrs[a]!="tr_hover"){
+                        item_name=attrs[a]
+                    }
+                }
+                $("tr.tech_items").removeClass("tr_hover")           
+            }
+      });
+   
+    });
+  </script>

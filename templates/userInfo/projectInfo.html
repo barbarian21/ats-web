@@ -1,0 +1,150 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+{% block title %}
+    <title>projectInfo</title>
+{% endblock %}
+
+{% block mainhead %}
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src="{% static "bootstrap-table/dist/bootstrap-table.min.js"%}"></script>
+    <!-- bootstrap-table-editable.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js"%}></script>
+    <!-- bootstrap-table-locale-all.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js"%}></script>
+    <!-- bootstrap-table-export.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js"%}></script>
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+    <!-- tableExport.min.js -->
+    <script type="text/javascript" src={% static "tableExport/tableExport.min.js"%}></script>
+    <style>
+     td{
+            white-space: nowrap;
+        }
+    </style>
+{% endblock %}
+
+{% block sidebar-menu %}
+    <a href="{% url "userInfo" %}" class="list-group-item list-group-item-action">用户信息</a>
+    <a href="{% url "projectInfo" %}" class="list-group-item list-group-item-action active">专案信息</a>
+    <a href="{% url "pegaUserInfo" %}" class="list-group-item list-group-item-action">PEGA员工查询</a>
+{% endblock %}
+
+{% block  content%}
+    <div class="table-box" style="margin: -10px 10px;">
+        <div id="projectToolbar">
+            <h4> 专案</h4>
+        </div>
+        <table id="projectTable"
+            data-toolbar="#projectToolbar"
+            data-show-columns="true">
+            <thead>
+                <tr>
+                    <th data-field="code">代号</th>
+                    <th data-field="name">名称</th>
+                    <th data-field="status">状态</th>
+                    <th data-field="email">邮箱</th>
+                    <th data-field="site">地点</th>
+                    <th data-field="description">描述</th>
+                    <th data-field="start_date">开始日期</th>
+                    <th data-field="stop_date">结束日期</th>
+                </tr>
+            </thead>
+        </table>
+
+        <br />
+        <div id="stageToolbar">
+            <h4>阶段</h4>
+        </div>
+        <table id="stageTable"
+            data-toolbar="#stageToolbar"
+            data-url="{% url "getStageData" %}"
+            data-method	= "get"
+            data-show-columns="true"
+            data-cache	= "true">
+            <thead>
+                <tr>
+                    <th data-field="name">名称</th>
+                    <th data-field="description">描述</th>
+                    <th data-field="start_date">开始日期</th>
+                    <th data-field="stop_date">结束日期</th>
+                </tr>
+            </thead>
+        </table>
+
+         <br />
+        <div id="stationToolbar">
+            <h4>站位</h4>
+        </div>
+        <table id="stationTable"
+            data-toolbar="#stationToolbar"
+            data-url="{% url "getStationData" %}"
+            data-method	= "get"
+            data-show-columns="true"
+            data-cache	= "true"
+            >
+            <thead>
+                <tr>
+                    <th data-field="stationID" data-sortable="true">站位ID</th>
+                    <th data-field="name" data-sortable="true">站位名</th>
+                    <th data-field="script" data-sortable="true">脚本名</th>
+                    <th data-field="description" data-sortable="true">描述</th>
+                    <th data-field="category" data-sortable="true">分类</th>
+                    <th data-field="is_POR" data-sortable="true">量产</th>
+                    <th data-field="is_offline" data-sortable="true">离线</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+{% endblock %}
+
+{% block last %}
+<script>
+
+    function initTable() {
+        $('#projectTable').bootstrapTable('destroy').bootstrapTable({
+            data: [ {
+                "code": "{{ request.user.favor_project.code }}",
+                "name": "{{ request.user.favor_project.name }}",
+                "status": "{{ request.user.favor_project.status }}",
+                "email": "{{ request.user.favor_project.email }}",
+                "site": "{{ request.user.favor_project.site }}",
+                "description": "{{ request.user.favor_project.description|linebreaksbr }}",
+                "start_date": "{{ request.user.favor_project.start_date|date:"Y-m-d" }}",
+                "stop_date": "{{ request.user.favor_project.stop_date|date:"Y-m-d" }}",
+            }],
+        });
+
+        $('#stageTable').bootstrapTable('destroy').bootstrapTable({});
+        $('#stationTable').bootstrapTable('destroy').bootstrapTable({});
+
+    }
+
+    $(function() {
+        initTable();
+        adjustHeight();
+    })
+
+    //调整页面高度
+    function adjustHeight(){
+        var content_height=ds-$(".navbar").height();
+        $(".movie-content").height(content_height);
+        $(".content_scroll").height(content_height);
+    }
+
+    function detailFormatter(index, row) {
+        var html = [];
+        $.each(row, function (key, value) {
+            html.push('<p><b>' + key + ':</b> ' + value + '</p>');
+        });
+        return html.join('');
+    }
+
+</script>
+{% endblock %}

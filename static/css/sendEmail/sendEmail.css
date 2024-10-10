@@ -1,0 +1,27 @@
+@charset "utf-8";
+
+
+/* content */
+#pages{margin-top: 1.5rem; margin-bottom: 1.5rem;}
+span[data-color-red]{color: red;}
+#emergency{margin-bottom: 56px;}
+.emerge{white-space: nowrap;}
+.vcenter{vertical-align: middle;}
+.break-word{word-break: break-word;}
+.ui-autocomplete{max-height: 200px; overflow-y: auto; overflow-x: hidden;}
+.ui-widget-overlay{opacity: .3; z-index: 9999;}
+.ui-widget-content{border: none;}
+.ui-dialog-titlebar-close i{font-size: 20px; line-height: 20px;}
+div[data-desc=ps]{color: red; font-size: 14px;}
+/* content end */
+
+
+/* 预览 */
+#preview-title{margin-top: 1rem;}
+#preview-content{padding: 10px; margin-bottom: 20px;}
+/* 预览 end */
+
+
+/* footer */
+#footer{margin-bottom: 0}
+/* footer end */

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% include 'sendEmail/metadata.html' %}
+
+        <link rel="stylesheet" href="/static/css/sendEmail/request-history.css">
+
+        <script src="/static/js/sendEmail/request-history.js" defer="defer"></script>
+        <style>
+            #search-input{
+                width: 180px;
+                height: 30px;
+                display: inline-block;
+                margin-left: 5px;
+                margin-right: 5px;
+                font-size: 14px;
+            }
+
+            #search-kind{
+                width:100px;
+                height:29px;
+                display: inline-block;
+                padding: 1px 8px;
+                font-size: 14px;
+            }
+
+        </style>
+    </head>
+    <body>
+        {% include 'sendEmail/header.html' %}
+
+        <div class="container content">
+            <div class="row mt-1 mb-1 option_bar" >
+                <div class="col-sm-12">
+                    <select name="kind" id="search-kind" class="custom-select">
+                        <option value="subject">主题</option>
+                        <option value="from_people">发信人</option>
+                        <option value="to_people">收件人</option>
+                    </select>
+                    <input id="search-input" type="text" class="form-control">
+                    <input id="search-btn" class="btn btn-secondary btn-sm" type="button" value="搜索">
+                    <button type="button" class="btn btn-secondary btn-sm" id="delete">删除</button>
+
+                </div>
+            </div>
+            <div class="row mail_content border">
+                <div class="col-sm-12" style="padding:0px;">
+                    {% if emails %}
+                        <table class="table table-striped table-hover table-bordered">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>
+                                        <input type="checkbox" id="select_all">全选
+                                    </th>
+                                    <th>邮件主题</th>
+                                    <th>发信人</th>
+                                    <th>收件人</th>
+                                    <th>发送时间</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for email in emails %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="{{ email.id }}">
+                                        </td>
+                                        <td>
+                                            <a href="#" calss="email_info" data-eid="{{ email.id }}">
+                                                {{ email.subject }}
+                                            </a>
+                                        </td>
+                                        <td>{{ email.from }}</td>
+                                        <td>{{ email.to }}</td>
+                                        <td>{{ email.add_time }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <h6>暂无邮件历史记录</h6>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% include 'sendEmail/footer.html' %}
+    </body>
+</html>

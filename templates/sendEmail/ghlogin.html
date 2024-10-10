@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+        <title>GH Request Tool</title>
+
+        <link rel="stylesheet" href="/static/fontawesome/css/font-awesome.min.css">
+
+        <script src="/static/jquery/jquery.min.js"></script>
+        
+        <link rel="shortcut icon" href="/static/sendEmail/img/gh-fav.ico">
+
+        <style>
+            * {margin: 0; padding: 0;}
+            .screenbg {
+                position: fixed; top: 0; left: 0; z-index: -999;
+                overflow: hidden;
+                width: 100%; height: 100%;
+            }
+            .gh-bg {
+                width: 100%; height: 100%;
+            }
+            html, body {
+                width: 100%; height: 100%;
+            }
+            .login {
+                position: relative; margin: 0 auto; top: 50%;
+                margin-top: -200px;
+                width: 350px; height: 400px; background: #fff;
+                border-radius: 5px; box-shadow: 0 0 6px #eae1e1;
+                opacity: .6; overflow: hidden; text-align: center;
+            }
+            .login-top {
+                margin-top: 55px; margin-bottom: 50px;
+                font-size: 24px; color: #333;
+            }
+            .login-body {
+                padding-left: 30px; padding-right: 30px;
+                font-size: 12px;
+            }
+            .login-body i {
+                line-height: 30px; vertical-align: middle;
+                font-size: 24px;
+            }
+            #usr, #pwd {
+                margin-top: 5px; margin-bottom: 5px;
+                width: 240px; height: 38px;
+                border: 1px solid #ffc107; outline: none;
+                padding: 0 10px; border-radius: 5px;
+            }
+            .remember-me {
+                margin-top: 5px; margin-bottom: 5px;
+                text-align: left;
+            }
+            #rbme {
+                margin-right: 3px;
+            }
+            #login-btn {
+                width: 290px; height: 38px; cursor: pointer;
+                outline: none; border-radius: 5px;
+                background: #ffc107;
+                margin-top: 30px;
+            }
+            #login-btn:hover {
+                background: orange;
+                color: black;
+            }
+            #login-btn:focus {
+                outline: none; border: none;
+            }
+            #msg {
+                color: red; font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="screenbg">
+            <img src="/static/sendEmail/img/gh.jpg" alt="gh-bg" class="gh-bg">
+        </div>
+        <div class="login">
+            <div class="login-top">GH Request Tool</div>
+            <div class="login-body">
+                <div>
+                    <i class=" fa fa-user"></i>
+                    <input type="text" placeholder="请输入您的用户名" id="usr">
+                </div>
+                <div>
+                    <i class=" fa fa-lock"></i>
+                    <input type="password" placeholder="请输入您的密码" id="pwd">
+                </div>
+                <div class="remember-me">
+                    <label>
+                        <input type="checkbox" id="rbme">记住我
+                    </label>
+                    <span id="msg"></span>
+                </div>
+                <div>
+                    <button type="button" id="login-btn">登陆</button>
+                </div>
+            </div>
+        </div>
+	    
+        <script>
+            $(function(){
+                function show(info){
+                    $( "#msg" ).text(info);
+                }
+
+                $('#login-btn').click(function(){
+                    var usr = $('#usr')[0].value.trim(),
+                        pwd = $('#pwd')[0].value.trim(),
+                        rbme = $('#rbme')[0].checked;
+                    $.ajax({
+                        url: '/sendEmail/',
+                        type: 'POST',
+                        data: {
+                            'username': usr,
+                            'password': pwd,
+                            'remember-me': rbme,
+                        },
+                        dataType: 'json',
+                        success: function(data){
+                            var msg = data.message;
+                            if(msg=='sendEmail')
+                                location.href = '/sendEmail/';
+                            else
+                                show(msg);
+                        },
+                        error: function(XMLHttpRequest, textStatus){
+                            console.log(textStatus);
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>

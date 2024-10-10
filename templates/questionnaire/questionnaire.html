@@ -1,0 +1,266 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>questionnaire</title>
+{% endblock %}
+
+{% block mainhead %} 
+    <!-- 引入 fontawesome -->
+    <link  href="{% static "fontawesome/css/all.min.css" %}" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="{% static "bootstrap-table/dist/bootstrap-table.min.css"%}" rel="stylesheet">
+    <!-- bootstrap-table.min.js -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js"%}></script>
+    <!-- 中文语言包 -->
+    <script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js"%}></script>
+{% endblock %}
+
+{% block mainbody %}
+    <div  id="page-content-wrapper">
+        <div id="toolbar">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button id="btn_add" class="btn btn-secondary" data-toggle="modal" data-target="#questionnaire-add">
+                    添加</button>
+                <button id="btn_password" class="btn btn-secondary">
+                    认证密码
+                </button>
+            </div>
+        </div>
+        <table id="table"
+            data-url="{% url "getQuestionnaire" %}"
+            data-method	= "post"
+            data-query-params = "queryParams"
+
+            data-toolbar="#toolbar"
+            data-search="true"
+            data-show-pagination-switch="true"
+            data-show-refresh="true"
+            data-show-fullscreen="true"
+            data-show-columns="true"
+            data-show-export="true"
+            data-cache	= "true"
+            data-click-to-select="true"
+            data-sort-order="desc"
+            data-sort-name="id"
+            data-unique-id = 'id'
+
+            data-pagination="true"
+            data-side-pagination="client"
+            data-page-list="[5, 10, 25, 50, 100,]"
+            data-page-number = "1"
+            data-page-size = "25"
+            data-pagination-pre-text = "上一页"
+            data-pagination-next-text = "下一页">
+        </table>
+        <!-- Add Form -->
+        <div id="questionnaire-add" class="modal fade" tabindex="-1" role="dialog" >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content" style="width: 600px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" >Add Record</h5>
+                        <button id="close-addForm" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form  id="add-form" class='form-check' target="nm_iframe">
+                            <div class="form-group">
+                                <label>主题 </label>
+                                <input type="text" class="form-control" name="theme" autocomplete="off" >
+                            </div>
+
+                            <div class="form-group">
+                                <label>作者 </label>
+                                <input type="text" class="form-control"  name="author" autocomplete="off" >
+                            </div>
+            
+                            <div class="form-group">
+                                <label>密码(务必记住) </label>
+                                <input type="text" class="form-control"  name="password" autocomplete="off" >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="theme_sigh">启动署名 </label>
+                                <input type="checkbox" name="sign" id="theme_sigh" unchecked>
+                            </div>
+                            <div class="form-group">
+                                <label for="theme_isActive">启动问卷 </label>
+                                <input type="checkbox" name="isActive" id="theme_isActive"  unchecked>
+                            </div>
+                            <button id="addForm-submit" type="submit" class="btn btn-primary pull-center" >提交</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form post not refresh -->
+        <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+    </div>
+{% endblock %}
+
+{% block last%}
+<script>
+    var $table = $('#table');
+    window.operateEvents = {
+        'click .edit': function (e, value, row, index) {
+            if(row.passwordProtect == "是"){
+                alert("请先认证密码！")
+            }else{
+                id = row.id
+                window.location.href="/questionnaireEdit/"+ JSON.stringify(id) + "/" 
+                console.log(window.location.href)
+            }
+        },
+
+        'click .remove': function (e, value, row, index) {
+            if(row.passwordProtect == "是"){
+                alert("请先认证密码！")
+            }else{
+                if(confirm("确认删除？")==true){
+                    $.ajax({
+                    url: "/questionnaireOperation/remove/",
+                    type: "post",
+                    data: {'ID': row.id},
+                    dataType: 'JSON',
+                    success: function (data, status) {
+                        if(status == 'success'  &&  data.status == 0){
+                            $table.bootstrapTable('remove', {
+                                field: 'id',
+                                values: [row.id]
+                            });
+                        }else{
+                            alert(data.data)
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    }
+                });
+                }
+            }
+        },
+
+        'click .results': function (e, value, row, index) {
+            if(row.passwordProtect == "是"){
+                alert("请先认证密码！")
+            }else{
+                id = row.id
+                window.location.href="/questionnaireAnswer/"+ JSON.stringify(id) + "/" 
+                console.log(window.location.href)
+            }   
+        }
+    };
+    function initTable() {
+        $table.bootstrapTable('destroy').bootstrapTable({
+            contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+            columns: [
+            {
+                field: 'operate',
+                title: '操作',
+                clickToSelect: false,
+                formatter: function(value, row, index) {
+                    return [
+                    '<a class="results" href="javascript:void(0)" title="enterResut" style="margin-right: 10px;">',
+                    '问卷结果',
+                    '</a>',
+                     '<a class="edit" href="javascript:void(0)" title="enterDetail" style="margin-right: 10px;">',
+                    '编辑问卷',
+                    '</a>',
+                    '<a class="remove" href="javascript:void(0)" title="Remove">',
+                    '删除',
+                    '</a>',
+                    ].join('')
+                },
+                events: operateEvents,
+            },{
+                field: 'id',
+                title: 'ID',
+                sortable: true,
+                visible:false
+            },{
+                field: 'theme',
+                title: '问卷主题',
+                sortable: true,
+                visible:true,
+                formatter : function(value, row, index){
+                    return "<a href='/questionnaire/" + JSON.stringify(row.id) +"/'>" +value+"</a>";
+                },
+            },{
+                field: 'author',
+                title: '作者',
+                sortable: true,
+                visible:true,
+            },{
+                field: 'add_time',
+                title: '创建时间',
+                sortable: true,
+                visible:true,
+            },{
+                field: 'passwordProtect',
+                title: '密码保护',
+                sortable: true,
+                visible:true,
+            }],
+            onLoadError: function () {
+                alert("数据加载失败！");
+            },
+        });
+    }
+
+    $(function() {
+        //init table
+        initTable();
+
+        //认证密码
+        $('#btn_password').click(function(){
+            var password = prompt("密码：");
+            if (password!= null) {
+                $.ajax({
+                    url: "/questionnaireOperation/confirmPassword/",
+                    type: "post",
+                    data: {"password":password},
+                    dataType:'json',
+                    async:true,
+                    success: function (data,status) {
+                        if(status == 'success'  &&  data.status == 0){
+                            window.location.reload();
+                        }else{
+                            alert(data.data)
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert(textStatus);
+                    },
+                });
+            }
+        });
+
+        //添加行
+        $('#addForm-submit').click(function() {
+            var addData = $('#add-form').serializeArray();
+            $.ajax({
+                url: "/questionnaireOperation/add/",
+                type: "post",
+                data: addData,
+                dataType:'json',
+                success: function (data,status) {
+                    if(status == 'success'  &&  data.status == 0){
+                        $table.bootstrapTable('insertRow', {
+                            index: 0,
+                            row: data.data,
+                        });
+                        $('#close-addForm').click();
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
+        });
+
+    })
+</script>
+{% endblock %}

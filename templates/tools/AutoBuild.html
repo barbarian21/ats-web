@@ -1,0 +1,117 @@
+{% extends 'basehome.html' %}
+
+{% load staticfiles %}
+
+{% block title %}
+    <title>Tools</title>
+{% endblock %}
+
+{% block mainhead %} 
+<script src="{% static 'js/tools/autobuild.js'%}"></script>
+{% endblock %}
+{% block mainbody %}
+<div class="row" style="height: 100%;">
+    <div class="col-2">
+        <!--侧边栏-->
+        <div class="padding_top sidebar p-2">
+       <ul class="nav nav-tabs" role="tablist">
+           <li class="nav-item">
+               {% block sidebar-title %}
+               <a class="nav-link active" data-toggle="tab" href="#home">Tools</a>
+               {% endblock %}
+           </li>
+       </ul>
+       <div class="tab-content">
+           <div id="home" class="container-fluid tab-pane active">
+               <br/>
+               <!-- 显示目录内容 -->
+               <ul class='bar_left'>
+                   {% block sidebar-menu %}
+                   <a href="{% url "messageBoard" %}" class="list-group-item list-group-item-action">MessageBoard</a>                                     
+                   <a href="{% url "autoBuild" %}" class="list-group-item list-group-item-action active">AutoBuild</a>
+                   <a href="{% url "macApps" %}" class="list-group-item list-group-item-action ">MacApps</a>
+                   <a href="{% url "grrSheet" %}" class="list-group-item list-group-item-action">GRR&Overlay</a>
+                  {% endblock %}
+               </ul>
+           </div>
+       </div>
+       </div>
+   </div>
+    <div class="col-10 content_scroll">
+        <!--内容-->
+        {% block content %} 
+        <div class="container-fluid" style="margin-top: 30px;">
+            <div class="row">
+                <div class="col-3">
+                </div>
+                <div class="col-6">
+                    <!-- 专案阶段选项 -->
+                    <div class="input-group sm-1" style='margin-top: 10px;'>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary"  style="width:100px;" >Project</button>
+                        </div>
+                        <input type="text" class="form-control boder-left-0 boder-right-0" id="input_project"  name="project" value="">
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;">Stage</button>
+                            <div class="dropdown-menu" id="dropdown_stage">
+                            </div>
+                          </div>
+                        <input type="text" class="form-control boder-left-0 boder-right-0" id="input_stage"  name="stage" value="">
+                    </div>
+                    <!-- 站位选项 -->
+                    <div class="input-group sm-1" style='margin-top: 10px;'>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary"  style="width:100px;" >Station</button>
+                        </div>
+                        <select class="custom-select" id="input_station">
+                        </select>
+                    </div>
+                    <!--version选项-->
+                    <div class="input-group sm-1" style='margin-top: 10px;'>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary"  style="width:100px;" >Version</button>
+                        </div>
+                        <select class="custom-select" id="input_Atlasversion">
+                            <option value='1.15.4'>1.15.4</option>
+                        </select>
+                    </div>   
+
+                    <!--branch-->
+                    <div class="input-group sm-1" style='margin-top: 10px;' >
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary"  style="width:100px;" >branch</button>
+                        </div>
+                        <input type="text" class="form-control boder-left-0" id="input_branch" name="branch" value="">
+                    </div>  
+
+                    <!--Tag-->
+                    <div class="input-group sm-1" style='margin-top: 10px;'>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100px;" >Tag</button>
+                            <div class="dropdown-menu" id="dropdown_tag">
+                            </div>
+                        </div>
+                        <input type="text" class="form-control boder-left-0" id="input_Tag" name="Tag" value="">
+                    </div>
+
+                    <!--ccMail-->
+                    <div class="input-group sm-1" style='margin-top: 10px;'>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-outline-primary"  style="width:100px;" >CC</button>
+                        </div>
+                        <input type="text" class="form-control boder-left-0" id="input_ccMail"  name="CCMail" value="">
+                    </div>
+                    <!--submit-->
+                    <div class="offset-5" style='margin-top: 20px;'>
+                        <button  type="submit" class="btn btn-primary" onclick="sendBuildMail();">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% endblock %}
+    </div>
+</div>
+<br>
+
+{% endblock %}

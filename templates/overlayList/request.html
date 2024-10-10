@@ -1,0 +1,872 @@
+{% extends 'basehome.html' %}
+{% load staticfiles %}
+
+
+{% block title %}<title>overlayRequest</title>{% endblock %}
+
+
+{% block mainhead %}
+    <style type="text/css">
+        textarea{
+            overflow: scroll;
+        }
+        .choose_all_items{
+            max-height: 300px; 
+            overflow: scroll;
+        }
+        .choose_item{
+            max-height: 300px; 
+            overflow: scroll;
+        }
+    </style>
+{% endblock %}
+
+
+{% block sidebar-menu %}
+    {% for key,value in sidebar.items %}
+        {% if forloop.counter == index %}
+            <a href="{{value}}"  class="list-group-item list-group-item-action active">{{key}}</a>
+        {% else %}
+            <a href="{{value}}"  class="list-group-item list-group-item-action ">{{key}}</a>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4">
+                <div class="list-group" id="list-tab" role="tablist">
+                <!-- 专案选项 -->
+                <div class="input-group sm-1">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-primary"  style="width:100px;" >Project</button>
+                    </div>
+                    <input type="text" class="form-control boder-left-0" id="input_project"  name="project" value="{{request.user.favor_project.name}}">
+                </div>
+                <!-- 阶段选项 -->
+                <div class="input-group sm-1">
+                    <div class="input-group-prepend">
+                    <button class="btn btn-outline-primary dropdown-toggle  border-top-0" id="btn_stage" type="button" data-toggle="dropdown" style="width:100px;" aria-haspopup="true" aria-expanded="false">
+                        Stage</button>
+                    <div class="dropdown-menu" id='choose_stage'>
+                        {% for i in stage %}
+                            <a class="dropdown-item" href="#">{{i}}</a>
+                        {% endfor %}
+                    </div>
+                    </div>
+                    <input type="text" class="form-control boder-left-0 border-top-0" id='input_stage' name="stage">
+                </div>
+                <!-- 优先级选项 -->
+                <div class="input-group sm-1">
+                    <div class="input-group-prepend">
+                    <button class="btn btn-outline-primary dropdown-toggle  border-top-0 " type="button" data-toggle="dropdown" style="width:100px;">
+                        Priority</button>
+                    <div class="dropdown-menu" id='choose_priority'>
+                        <a class="dropdown-item" href="#">Overlay Request</a>
+                        <a class="dropdown-item" href="#">Urgent Overlay Request</a>
+                        <a class="dropdown-item" href="#">DOE Request</a>
+                        <a class="dropdown-item" href="#">No Overlay</a>
+                    </div>
+                    </div>
+                    <input type="text" class="form-control boder-left-0 border-top-0" id='input_priority' name="priority" value="Overlay Request">
+                </div>
+                <!-- 站位选项 -->
+                <div class="input-group sm-1">
+                    <div class="input-group-prepend">
+                    <button class="btn btn-outline-primary  border-top-0" type="button" style="width:100px;" data-toggle="collapse" data-target="#collapseStations" aria-expanded="false" aria-controls="collapseStations">
+                        Station</button>
+                    </div>
+                    <input type="text" class="form-control boder-left-0 border-top-0" id='input_stations' name="stations">
+                </div>
+                <!-- 站位选项卡 -->
+                <div class="card collapse " id="collapseStations" >
+                    <div class="card-body">
+                        {% for i in station%}
+                        <label><input type="checkbox" name="current_station" value="{{i.script}}" onclick="chooseStation()">{{i.script}}</label>
+                        {% endfor%}
+                    </div>
+                </div>
+
+                <!-- 操作选项 -->
+                <a class="list-group-item list-group-item-action active border-top-0" id="list-updateLimits-list" data-toggle="list" href="#list-updateLimits" role="tab" aria-controls="updateLimits">
+                    Update Limits</a>
+                <a class="list-group-item list-group-item-action" id="list-renameItem-list" data-toggle="list" href="#list-renameItem" role="tab" aria-controls="renameItem">
+                    Rename Item</a>
+                <a class="list-group-item list-group-item-action" id="list-moveItem-list" data-toggle="list" href="#list-moveItem" role="tab" aria-controls="moveItem">
+                    Move Item</a>
+                <a class="list-group-item list-group-item-action" id="list-removeItem-list" data-toggle="list" href="#list-removeItem" role="tab" aria-controls="removeItem">
+                    Remove Item</a>
+                <a class="list-group-item list-group-item-action" id="list-other-list" data-toggle="list" href="#list-other" role="tab" aria-controls="other">
+                    Other Logic</a>   
+                <a class="list-group-item list-group-item-action" id="list-sendMail-list" data-toggle="list" href="#list-sendMail" role="tab" aria-controls="sendMail">
+                    Send Mail</a>           
+                </div>
+            </div>
+        
+            <div class="col-7">
+                <div class="tab-content" id="nav-tabContent">
+                <!-- Update Limits -->
+                <div class="tab-pane fade show active" id="list-updateLimits" role="tabpanel" aria-labelledby="list-updateLimits-list">
+                    <form  id="updateLimits-form" target="nm_iframe" onsubmit="return updateLimits(this)">
+                    <div class="form-group">
+                        <div class="input-group sm-1">
+                        <div class="input-group-prepend itemsDropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            ItemName</button>
+                            <div class="dropdown-menu choose_item" id="limits_choose_item">
+                            </div>
+                        </div>
+                        <input type="text" class="form-control" id="limits_input_itemName"  name="itemName">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                        <label>LSL</label>
+                        <input class="form-control" name="LSL">
+                        </div>
+                        <div class="form-group col-md-4">
+                        <label>USL</label>
+                        <input class="form-control" name="USL">
+                        </div>
+                        <div class="form-group col-md-4">
+                        <label>Units</label>
+                        <input class="form-control" name="units">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="radar">Match</label>
+                        <input type="text" class="form-control"  name="match">
+                    </div>
+                    <div class="offset-5">
+                        <button id="updateLimits-submit" type="submit" class="btn btn-primary" >Add</button>
+                    </div>
+                    </form>
+                </div>
+                            
+                <!-- Rename Item -->
+                <div class="tab-pane fade" id="list-renameItem" role="tabpanel" aria-labelledby="list-renameItem-list">
+                    <form  id="renameItem-form" target="nm_iframe" onsubmit="return renameItem(this)">
+                    <div class="form-group">
+                        <div class="input-group sm-1">
+                        <div class="input-group-prepend itemsDropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            ItemName</button>
+                            <div class="dropdown-menu choose_item" id="rename_choose_item">
+                            </div>
+                        </div>
+                        <input type="text" class="form-control" id="rename_input_itemName"  name="itemName">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>NewItem</label>
+                        <input type="text" class="form-control" name="newItem" >
+                    </div>
+                    <div class="offset-5">
+                        <button id="renameItem-submit" type="submit" class="btn btn-primary" >Add</button>
+                    </div>
+                    </form>
+                </div>
+        
+                <!-- Move Item -->
+                <div class="tab-pane fade" id="list-moveItem" role="tabpanel" aria-labelledby="list-moveItem-list">
+                    <form  id="moveItem-form" target="nm_iframe" onsubmit="return moveItems(this)">
+                    <div class="form-group">
+                        <div class="input-group sm-1">
+                            <div class="input-group-prepend">
+                                <button type="button" id="btn_moveItems" class="btn btn-secondary" data-toggle="collapse" data-target="#move_collapseItems" aria-expanded="false" aria-controls="move_collapseItems">
+                                        ItemNames</button>
+                            </div>
+                            <textarea type="text" class="form-control" id="move_textarea_items" rows="4" name="itemNames"></textarea>
+                        </div>
+                        <div class="card collapse collapseAllItems" id="move_collapseItems" >
+                            <div class="card-body choose_all_items" id='move_choose_items'>                                   
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>before</label>
+                        <input type="text" class="form-control" name="before" >
+                    </div>
+                    <div class="form-group">
+                        <label>after</label>
+                        <input type="text" class="form-control" name="after" >
+                    </div>
+                    <div class="offset-5">
+                        <button id="moveItem-submit" type="submit" class="btn btn-primary">Add</button>
+                    </div>
+                    </form>
+                </div>
+        
+                <!-- Remove Item -->
+                <div class="tab-pane fade" id="list-removeItem" role="tabpanel" aria-labelledby="list-removeItem-list">
+                    <form  id="removeItem-form" target="nm_iframe" onsubmit="return removeItems(this)">
+                    <div class="form-group">
+                            <div class="input-group sm-1">
+                                <div class="input-group-prepend">
+                                    <button type="button" id="btn_rmoveItems" class="btn btn-secondary" data-toggle="collapse" data-target="#remove_collapseItems" aria-expanded="false" aria-controls="remove_collapseItems">
+                                            ItemNames</button>
+                                </div>
+                                <textarea type="text" class="form-control" id="remove_textarea_items" rows="4" name="itemNames"></textarea>
+                            </div>
+                            <div class="card collapse collapseAllItems" id="remove_collapseItems" >
+                                <div class="card-body choose_all_items" id='remove_choose_items'>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="offset-5">
+                        <button id="remove-submit" type="submit" class="btn btn-primary" >Add</button>
+                    </div>
+                    </form>
+        
+                </div>
+        
+                <!-- Other Logic -->
+                <div class="tab-pane fade" id="list-other" role="tabpanel" aria-labelledby="list-other-list">
+                    <form  id="otherLogic-form" target="nm_iframe" onsubmit="return ohterLogic(this)">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" class="form-control" name="title"></input>
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <textarea type="text" class="form-control" rows="8" name="others"></textarea>
+                        </div>
+                        <div class="offset-5">
+                            <button id="other-submit" type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- sendMail -->
+                <div class="tab-pane fade" id="list-sendMail" role="tabpanel" aria-labelledby="list-sendMail-list">
+                    <form  id="sendMail-form" target="nm_iframe">
+                        <div class="form-row">
+                            <!-- <div class="form-group col-md-6">
+                                <div class="input-group sm-1">
+                                    <label class="form-control"><input type="checkbox" id="isSubmit" disabled> Submit to server</label>
+                                </div>
+                            </div> -->
+                            <div class="form-group col-md-6">
+                                <div class="input-group sm-1">
+                                    <label class="form-control"><input type="checkbox" id="isMailbyServer" > Send mail by server</label>
+                                </div>
+                            </div>
+                        </div>
+                            
+                        <div class="form-group">
+                            <div class="input-group sm-1">
+                                <div class="input-group-prepend">
+                                    <button class="btn btn-secondary" id="btn_mail_subject">Subject</button>
+                                </div>
+                                <input type="text" class="form-control" id="mail_subject">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <div class="input-group sm-1">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            To</button>
+                                        <div class="dropdown-menu" id='choose_mail_to'>
+                                            {% for department in Department %}
+                                                <a class="dropdown-item" href="#">{{department.email}}</a>
+                                            {% endfor %}
+                                            <a class="dropdown-item" href="#">{{request.user.favor_project.email}}</a>
+                                        </div>
+                                    </div>
+                                    <input class="form-control" id="mail_to">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <div class="input-group sm-1">
+                                    <div class="input-group-prepend">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            CC</button>
+                                        <div class="dropdown-menu" id='choose_mail_cc'>
+                                            {% for department in Department %}
+                                                <a class="dropdown-item" href="#">{{department.email}}</a>
+                                            {% endfor %}
+                                            <a class="dropdown-item" href="#">{{request.user.favor_project.email}}</a>
+                                        </div>
+                                    </div>
+                                    <input class="form-control" id="mail_cc">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Radar or Document</label>
+                            <textarea type="text" class="form-control" rows="2" id="radar_doc"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="radar">Change List</label>
+                            <button id="btn_roll_back" class="btn btn-secondary float-right">roll-back</button>
+                            <textarea type="text" wrap="off"  class="form-control" id="textarea_mail_content" rows="12" name="mail_content"></textarea>
+                        </div>
+                        
+                        <div class="offset-5">
+                            <input type="button" class="btn btn-primary" name="submit" value="submit" onclick="sendMail();">
+                            <a href="mailto:" id="mailTo"></a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ... -->
+                </div>
+            </div>
+        </div>
+    </div>
+  
+    <!-- Form post not refresh -->
+    <iframe id="id_iframe" name="nm_iframe" style="display:none;"></iframe>
+    {% endblock %}
+
+
+{% block last %}
+<script>
+    var allStation = []; 
+    var dicChangeList = {};
+    var dicStatonChange = {}
+    var arrSteps = [];
+
+    var listSItemsForStation = "";
+
+    var limitsChange = "Update Limits";
+    var reNameChange = "Rename Item";
+    var moveChange = "Move Item";
+    var removeChange = "Remove Item";
+    var otherChange = "Others";
+
+    //选择站位
+    function chooseStation(){
+        var input = document.getElementById("input_stations");
+        input.value = "";
+        var stationCheck = document.getElementsByName('current_station');
+        var value = new Array();
+        for(var i = 0; i < stationCheck.length; i++){
+            var checkbox = stationCheck[i];
+            if(checkbox.checked){
+                value.push(checkbox.value);
+            }
+        }
+        input.value = value.join('&');
+    }
+
+    function getStation(){
+        szStations =  trim($("#input_stations").val());
+        if(szStations == ""){
+            return [];
+        }
+        return szStations.split('&');
+    }
+
+    function getAllstations()
+    {
+        allStation = [];  
+        for (var key in dicChangeList){
+            allStation.push(key);
+        }
+        strStation = allStation.join("&");
+        return strStation;
+    }
+
+    //更新Limits
+    function updateLimits(form){
+        var szItemName = trim(form.itemName.value);
+        var szLSL = trim(form.LSL.value);
+        var szUSL = trim(form.USL.value);
+        var szUnits = trim(form.units.value);
+        var szMatch = trim(form.match.value);
+        var re = /^[0-9]+.?[0-9]*/;
+
+        if(szItemName==''){
+            alert('Please input item name!');
+            form.itemName.focus();
+            return false;
+        }
+        if(szMatch==""){
+            //判断下限为数字
+            if(szLSL == ""){
+                szLSL = "NA";
+            }else if(!isNumber(szLSL)){
+                alert('Please input number!')
+                form.LSL.focus();
+                return false;
+            }
+            //判断上限为数字
+            if(szUSL == ""){
+                szUSL = "NA";
+            }else if(!isNumber(szUSL)){
+                alert('Please input number!')
+                form.USL.focus();
+                return false;
+            }
+            //判断下限不大于上限
+            if(szLSL!="NA" && szUSL!="NA"){
+                numLSL = Number(szLSL);
+                numUSL = Number(szUSL);
+                if(numLSL>numUSL){
+                    alert("LSL>USL, please check!")
+                    form.LSL.focus();
+                    return false;
+                }
+            }
+            dicValue = {"Item":szItemName, "LSL":szLSL, "USL":szUSL, "Units":szUnits};
+        }
+        else{
+            dicValue = {"Item":szItemName, "Match":szMatch};
+        }
+        //判断 station 不为空
+        arrStation = getStation();
+        if(arrStation.length<1){
+            alert("Please choose stations");
+            return false;
+        }
+
+        dicChangeList = formatDic(dicChangeList,arrStation,limitsChange,dicValue);
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+        $('#updateLimits-form input').val("");
+        return true;
+    }
+
+    //测项rename
+    function renameItem(form){
+        var szItemName = trim(form.itemName.value);
+        var szNewName = trim(form.newItem.value);
+        if(szItemName==''){
+            alert('Please input item name!');
+            form.itemName.focus();
+            return false;
+        }
+        if(szNewName==''){
+            alert('Please input new item name!');
+            form.newItem.focus();
+            return false;
+        }
+        //判断 station 不为空
+        arrStation = getStation();
+        if(arrStation.length<1){
+            alert("Please choose stations");
+            return false;
+        }
+
+        dicValue = {"OldItem":szItemName, "NewItem":szNewName};
+        dicChangeList = formatDic(dicChangeList,arrStation,reNameChange,dicValue);
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+        $('#renameItem-form input').val("");     
+        return true;
+    }
+
+    //移动测项
+    function moveItems(form){
+        var szItemNames = trim(form.itemNames.value);
+        var szBefore = trim(form.before.value);
+        var szAfter = trim(form.after.value);
+        if(szItemNames==""){
+            alert('Please input item names!');
+            form.itemNames.focus();
+            return false;
+        }
+        if(szBefore=="" && szAfter==""){
+            alert('Please input before or after item!');
+            form.before.focus();
+            return false;
+        }
+        //判断 station 不为空
+        arrStation = getStation();
+        if(arrStation.length<1){
+            alert("Please choose stations");
+            return false;
+        }
+        dicValue = {"MoveItem":szItemNames.split('\n'), "BeforeItem":szBefore, "AfterItem":szAfter}
+        dicChangeList = formatDic(dicChangeList,arrStation,moveChange,dicValue);
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+        $('#moveItem-form input').val("");    
+        $('#moveItem-form textarea').val("");    
+        return true;
+    }
+
+    //删除测项
+    function removeItems(form){
+        var szItemNames = trim(form.itemNames.value);
+        if(szItemNames==""){
+            alert('Please input item names!');
+            form.itemNames.focus();
+            return false;
+        }
+        //判断 station 不为空
+        arrStation = getStation();
+        if(arrStation.length<1){
+            alert("Please choose stations");
+            return false;
+        }
+
+        arrValue = szItemNames.split('\n')
+        dicChangeList = formatDic(dicChangeList,arrStation,removeChange,arrValue);
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+        $('#removeItem-form textarea').val("");      
+        return true;
+    }
+
+    //other Logic
+    function ohterLogic(form){
+        var szTitle= trim(form.title.value);
+        var szContent = trim(form.others.value);
+        if(szTitle==""){
+            alert('Please input somthing!');
+            form.title.focus();
+            return false;
+        }
+        if(szContent==""){
+            alert('Please input somthing!');
+            form.others.focus();
+            return false;
+        }
+        //判断 station 不为空
+        arrStation = getStation();
+        if(arrStation.length<1){
+            alert("Please choose stations");
+            return false;
+        }
+        dicValue = {"Title":szTitle, "Content":szContent}
+        dicChangeList = formatDic(dicChangeList,arrStation,otherChange,dicValue);
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+        $('#otherLogic-form textarea').val("");      
+        $('#otherLogic-form input').val("");      
+
+        return true;
+    }
+
+    //发送邮件
+    function sendMail(){
+        var subject = $("#mail_subject").val();
+        var to = $("#mail_to").val();
+        var cc = $("#mail_cc").val();
+        var radar_doc = $("#radar_doc").val();
+        var content = $("#textarea_mail_content").val();
+        var isSubmit = $("#isSubmit").is(":checked");
+        var isMailbyServer = $("#isMailbyServer").is(":checked");
+        var project = $("#input_project").val();
+        var stage = $("#input_stage").val();
+        if(trim(project)=="" || trim(stage)=="" || trim(content)==""){
+            alert("Please input Project | Stage | changeList !");
+            return false;
+        }
+        if(isSubmit){
+            // ajax post data to server
+            $.ajax({
+                url: "{% url 'requestMailData' %}",
+                type: "post",
+                data: {
+                    "project": project,
+                    "stage": stage,
+                    "changeList": JSON.stringify(dicChangeList),
+                    "stationChange": JSON.stringify(dicStatonChange),
+                    "radar_document":radar_doc,
+                },
+                dataType: 'JSON',
+                success: function (data, status) {
+                    if (status == 'success') {
+                        if(data["result"]){
+                            window.location.href = "{% url 'overlay' 0 %}";
+                        }else{
+                            alert(data["info"]);
+                        }
+                    }   
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }
+
+        if(radar_doc!=""){
+            radar_doc = "Radar or Document:\n"+radar_doc;
+        }
+        var title = "Hi Team, \n\n"+"Please help to follow below change list, thanks."+"\n\n";
+        var mail_body = title + content + radar_doc;
+
+        if(isMailbyServer){
+            $.ajax({
+                url: "{% url 'sendRequestMail' %}",
+                type: "post",
+                data: {
+                    "mail_to": to,
+                    "mail_body": mail_body,
+                    "mail_cc": cc,
+                    "mail_subject": subject,
+                },
+                dataType: 'JSON',
+                success: function (data, status) {
+                    if (status == 'success') {
+                        alert('send Mail Sucess!');
+                    }   
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        }else{
+            mail_body = encodeURIComponent(mail_body);
+            subject = encodeURIComponent(subject);
+            mailTo.href="mailto:"+to+"?cc="+cc+"&subject="+subject+"&body="+mail_body;
+            mailTo.click();
+        }  
+    }
+
+    function mailSubject(){
+        szPriority =  $("#input_priority").val();
+        szProject = $("#input_project").val();
+        szStage = $("#input_stage").val();
+        szStations = getAllstations();
+        subJect ="["+szProject+"]["+szStage+"]["+szPriority+"]For stations:"+szStations;
+        document.getElementById("mail_subject").value = subJect;
+    }
+    
+    //格式化 json data
+    function formatDic(dic,arrStation,changeType,appedValue){
+        var currentStep = [];
+        for(var i = 0; i< arrStation.length; i++){
+            station = arrStation[i];
+            if (! dic[station]){
+                dic[station] = {};
+            }
+            if(! dic[station][changeType]){
+                dic[station][changeType] = [];
+            }
+            dic[station][changeType].push(appedValue);
+            currentStep.push(station+":"+changeType);
+        }
+        arrSteps.push(currentStep);
+        return dic
+    }
+
+    //格式化打印 json data
+    function appendDic(dict){
+        var textarea = "";
+        for(var station in dict){
+            // textarea+="["+station+"]\n";
+            var textContent = "";
+            var dicTemp = dict[station];
+            var index = 1;
+            for(var key in dicTemp){
+                if(key == otherChange){
+                    continue;
+                }
+                listValue = dicTemp[key];
+                textContent+= index+". "+key+":\n";
+                for(var i=0; i<listValue.length; i++){
+                    aValue = listValue[i];
+                    if(key == limitsChange){
+                        if(!aValue["Match"]){
+                            textValue= "Item="+aValue['Item']+"\tLimits="+"["+aValue['LSL']+","+aValue['USL']+"]";
+                            if(aValue["Units"]!=""){
+                                textValue+= "\tUnits="+aValue["Units"]
+                            }
+                            textContent+= "\t("+(i+1)+") "+ textValue + "\n"
+                        }
+                        else{
+                            textValue= "Item="+aValue['Item']+"\tLimits="+aValue['Match']+ "\tUnits=match";;
+                            textContent+= "\t("+(i+1)+") "+ textValue + "\n"
+                        }
+                    }
+                    else if(key == reNameChange){
+                        var textValue = aValue['OldItem']+"==>"+aValue['NewItem'];
+                        textContent+= "\t("+(i+1)+") "+ textValue + "\n"
+                    }
+                    else if(key == removeChange){
+                        textContent+= '\t'+aValue.join('\n\t') + "\n"
+                    }
+                    else if(key == moveChange){
+                        var textValue = "MoveItem="+ aValue['MoveItem'].join("\n\t\t") + "\n\t";
+                        if(aValue['BeforeItem']!=""){
+                            textValue+="BeforeItem=" + aValue['BeforeItem'];
+                        }
+                        if(aValue['AfterItem']!=""){
+                            textValue+= " AfterItem="+aValue['AfterItem'];
+                        }
+                        textContent+= "\t("+(i+1)+") "+ textValue + "\n";
+                    }
+                    else {
+                    }
+                }
+                index++;
+            }
+            //append others
+            if(dicTemp[otherChange]){
+                var arrOthers = dicTemp[otherChange];
+                for(var i=0; i<arrOthers.length; i++){
+                    aValue = arrOthers[i];
+                    textContent += index+". "+aValue["Title"]+":\n";
+
+                    content = aValue["Content"];
+                    content = content.replace(/(\n)/g, "\n\t");
+                    textContent += "\t"+content+"\n";
+                    index++;
+                }
+            }
+            dicStatonChange[station] = textContent;
+            textarea += "["+station+"]\n" + textContent +"\n";
+        }
+        return textarea;
+    }
+
+    //回退
+    $("#btn_roll_back").click(function(){
+        var lastStep = arrSteps.pop();
+        for(var index in lastStep){
+            stationInfo = lastStep[index];
+            var station = stationInfo.split(":")[0];
+            var changeType = stationInfo.split(":")[1];
+            var arrList = dicChangeList[station][changeType];
+            arrList.pop();
+            if(arrList.length == 0){
+                delete dicChangeList[station][changeType];
+                var dic = dicChangeList[station];
+                if(isEmptyObject(dic)){
+                    delete dicChangeList[station];
+                }
+            }else{
+                dicChangeList[station][changeType] = arrList;
+            }
+        }
+        document.getElementById('textarea_mail_content').value = appendDic(dicChangeList);
+    });
+
+    function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
+    function contains(arr,obj)
+    {
+        bRet = false;
+        for(var i = 0; i<arr.length; i++){
+            if(arr[i] == obj){
+                bRet = true;
+                break;
+            }
+        }
+        return bRet;
+    }
+
+    function trim(str)
+    {
+        return str.replace(/(^\s*)|(\s*$)/g, "");
+    }
+
+    function isEmptyObject(obj){
+        for (var n in obj) {
+            return false
+        }
+        return true; 
+    } 
+
+    $(document).ready(function(){
+        $(".movie-content").height(ds);
+        $(".content_scroll").height(ds-$(".navbar").height());
+        //修改Project
+        $("#input_project").on("change",function(){
+            // update  mail subject
+            mailSubject();
+        })
+        //下拉框选择阶段
+        $("#choose_stage").on("click", "a", function(){
+            $("#input_stage").val($(this).text());
+            mailSubject();
+        });
+        $("#input_stage").on("change",function(){
+            mailSubject();
+        })
+
+        //下拉框选择优先级
+        $("#choose_priority").on("click", "a", function(){
+            $("#input_priority").val($(this).text());
+            mailSubject();
+        });
+        $("#input_priority").on("change",function(){
+            mailSubject();
+        })
+
+        //send Mail 选项卡点击事件
+        $("#list-sendMail-list").click(function(){
+            mailSubject();
+            if($("#mail_to").val()==""){
+                $("#mail_to").val("{{ mailTo }}");
+            }
+            if($("#mail_cc").val()==""){
+                $("#mail_cc").val("{{ request.user.favor_project.email }}");
+            }
+        });
+        //邮件主题按钮点击事件
+        $('#btn_mail_subject').click(function(){
+            mailSubject();
+        })
+        //下拉框选择 Mail TO
+        $("#choose_mail_to").on("click","a",function(){
+            $("#mail_to").val($(this).text()); 
+        });
+        //下拉框选择 Mail CC
+        $("#choose_mail_cc").on("click","a",function(){
+            $("#mail_cc").val($(this).text()); 
+        });
+
+        //ItemNames 展开列表触发事件
+        $('.collapseAllItems').on('show.bs.collapse', function () {
+            ajaxGetStationItems()
+        });
+        $("#move_choose_items").on("click","a",function(){
+            value = $("#move_textarea_items").val()
+            value += $(this).text()+"\n"
+            $("#move_textarea_items").val(value); 
+        });
+        $("#remove_choose_items").on("click","a",function(){
+            value = $("#remove_textarea_items").val()
+            value += $(this).text()+"\n"
+            $("#remove_textarea_items").val(value); 
+        });
+
+        //ItemName 下拉框点击触发事件
+        $('.itemsDropdown').on('show.bs.dropdown', function () {
+            ajaxGetStationItems()       
+        });
+        $("#limits_choose_item").on("click","a",function(){
+            $("#limits_input_itemName").val($(this).text()); 
+        });
+        $("#rename_choose_item").on("click","a",function(){
+            $("#rename_input_itemName").val($(this).text()); 
+        });
+      
+        function ajaxGetStationItems(){
+            arrStation = getStation();
+            if(!contains(arrStation,listSItemsForStation) && arrStation.length != 0){
+                listSItemsForStation = arrStation[0];
+                $.ajax({
+                    url: "{% url 'getStationItems' %}",
+                    type: "post",
+                    data: {"station":listSItemsForStation},
+                    dataType: 'JSON',
+                    async: false,
+                    success: function (data, status) {
+                        if (status == 'success') {
+                            $(".choose_all_items").empty();
+                            $(".choose_item").empty();
+                            for(var i = 0; i < data.length; i++){
+                                $(".choose_item").append("<a class='dropdown-item' href='#'>"+data[i]+"</a>");
+                                $(".choose_all_items").append("<a class='dropdown-item' href='#'>"+data[i]+"</a>");
+                            }
+                        }      
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(errorThrown);
+                    }
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}
+

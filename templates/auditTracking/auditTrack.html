@@ -1,0 +1,201 @@
+{%extends "basehome.html" %}
+
+{% load staticfiles %}
+
+{% block title %}
+<title>IssueList</title>
+{% endblock %}
+
+
+{% block mainhead %}
+<!-- 引入 fontawesome -->
+<link href={% static "fontawesome/css/all.min.css" %} rel="stylesheet">
+<!-- 引入bootstrap-table样式 -->
+<link href={% static "bootstrap-table/dist/bootstrap-table.min.css" %} rel="stylesheet">
+
+<!-- bootstrap-table.min.js -->
+<script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table.min.js" %}> </script>
+<!-- bootstrap-table-editable.js -->
+<script type="text/javascript" src={% static "bootstrap-table/dist/extensions/editable/bootstrap-table-editable.js" %}></script>
+<!-- bootstrap-table-locale-all.min.js -->
+<script type="text/javascript" src={% static "bootstrap-table/dist/bootstrap-table-locale-all.min.js" %}></script>
+<!-- bootstrap-table-export.min.js -->
+<script type="text/javascript" src={% static "bootstrap-table/dist/extensions/export/bootstrap-table-export.min.js" %}></script>
+<!--bootstrap-table-filter-control.min.js-->
+<script src={% static "bootstrap-table/dist/extensions/filter-control/bootstrap-table-filter-control.min.js" %}></script>
+<!-- 中文语言包 -->
+<script type="text/javascript" src={% static "bootstrap-table/dist/locale/bootstrap-table-zh-CN.min.js" %}></script>
+<!-- tableExport.min.js -->
+<script type="text/javascript" src={% static "tableExport/tableExport.min.js" %}></script>
+<script type="text/javascript" src={% static "laydate/laydate.js" %}></script>
+<!-- highcharts -->
+<script type="text/javascript" src={% static "highcharts/highcharts.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/xrange.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/oldie.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/exporting.js" %}> </script>
+<script type="text/javascript" src={% static "highcharts/modules/offline-exporting.js" %}> </script>
+<style>
+    .selectTable{
+            overflow: scroll;
+            max-height: 400px;
+            position: absolute;
+            width: auto;
+            z-index: 10;
+            background-color: #E0E5E5;
+            border : solid 1px
+        }
+        td div {
+            overflow: auto;
+            max-width: 25em;
+            max-height: 7em;
+        }
+        .list-group-item{
+            min-height: 45px;
+        }
+        .replyUser{
+          font-size: 5px;
+          width:auto;
+          text-align:left;
+          float : left;
+          padding : 0;
+        }
+        .replyDate{
+          font-size: 5px;
+		  width: auto;
+          text-align:right;
+          float : right;
+          padding-right : 0;
+        }
+        .replyInfo{
+            /* border-bottom: solid 1px; */
+            width: 100%;
+            margin-left: 10px;
+        }
+        .replyTitle{
+            margin-top: 10px;
+            min-width:200px;
+            /* border-bottom: dotted 1px; */
+        }
+        /* th{
+            text-align:center;
+        } */
+        tbody{
+            white-space: nowrap;
+        }
+        td{
+            text-align:left;
+        }
+    </style>
+<script type="text/javascript">
+    var ds = $(window).height();
+    $(function () {
+        $(".movie-content").height(ds);
+        $(".content_scroll").height(ds - $(".navbar").height());
+    })
+</script>
+
+{% endblock %}
+
+{% block sidebar-menu %}
+
+<div class="card">
+    <div class="card-header" id="FATP">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+            aria-controls="collapseOne">Audit</button>
+    </div>
+    <div id="collapseOne" class="collapse show" aria-labelledby="FATP">
+        <div class="list-group">
+            <button onclick="sidebarHref(this)" value="/Audit/detail" class="list-group-item list-group-item-action active">DetailInfo</button>
+            <button onclick="sidebarHref(this)" value="/Audit/summaryByIssueCategory" class="list-group-item list-group-item-action">Summary</button>
+            <button onclick="sidebarHref(this)" value="/Audit/summaryByDRI" class="list-group-item list-group-item-action">SubtotalByDRI</button>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block content %}
+<div id="function-menu" style='font-size:10px;display:block'>
+    <div class='float-right'>
+        <div id="standardColor1">
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Red"
+                onclick="injectColor(value)" value='#ff0000' style="background: #ff0000"></button>
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Green"
+                onclick="injectColor(value)" value='#008000' style="background: #008000"></button>
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Yellow"
+                onclick="injectColor(value)" value='#ffff00' style="background: #ffff00"></button>
+        </div>
+        <div id="standardColor1">
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Orange"
+                onclick="injectColor(value)" value='#ffa500' style="background: #ffa500"></button>
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Blue"
+                onclick="injectColor(value)" value='#0000ff' style="background: #0000ff"></button>
+            <button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Black"
+                onclick="injectColor(value)" value='#000000' style="background: #000000"></button>
+            <button id='clear' type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="Clear"
+                onclick="clearColor()" style="background: #ffffff"></button>
+        </div>
+    </div>
+
+    <div class='float-left'>
+        <div>
+            <button type="button" class="btn btn-primary" title="save" onclick="saveTable()"><i class="fas fa-save"></i></button>
+            <a id="download" href="/Audit/download" class='btn btn-primary mr-3' title="download"><i class="fas fa-download"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- replyAudit view -->
+<div id='replyAudit'>
+    <div class='container-fluid'>
+        <div class='row replyTitle'>
+            <div class='replyUser col-4'></div>
+            <div class='replyDate col-8'></div>
+        </div>
+    </div>
+    <div class='container-fluid'>
+        <div class='row'>
+            <text class='replyInfo'></text>
+        </div>
+    </div>
+</div>
+
+<!-- table view -->
+<div id='drawChart'></div>
+<div id='AuditTrackTable' style="text-align:center;">
+    <div id='PopList' style="direction:none;"></div>
+</div>
+
+<!-- replyAudit edit Modal-->
+<div class="container">
+    <!-- 模态框（Modal） -->
+    <div class="modal fade" id="replyModal" tabindex="-1" aria-labelledby="replyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="replyModalLabel">Remark Edit</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid" id='oldReply'></div>
+                    <div class="form-group">
+                        <label class="col-form-label">Your Reply:</label>
+                        <textarea type="text" class="form-control" id="newReply" required="required"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" onclick="submitModal()" class="btn btn-primary">提交</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</div>
+
+
+
+<script type="text/javascript" src="{% static 'js/methodnew.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/auditTracking.js' %}">
+</script>
+{% endblock %}

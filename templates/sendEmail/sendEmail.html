@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% include 'sendEmail/metadata.html' %}
+
+	<link rel="stylesheet" href="/static/css/sendEmail/sendEmail.css">
+
+	<script src="/static/js/sendEmail/brower.js"></script>
+</head>
+<body>
+	{% include 'sendEmail/header.html' %}
+
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6" id="pages">
+				<div data-page="page1">
+					<div class="row border" id="page1-1th-row">
+						<div class="col-sm-12">
+							<b>GH Server</b><span data-color-red>*</span>(Please check at least one ghLS and Product)
+						</div>
+					</div>
+				</div>
+				<div data-page="page2">
+					<div class="row">
+						<div class="col-sm-2 border">Product<span data-color-red>*</span></div>
+						<div class="col-sm-10 border border-left-0" id="products"></div>
+					</div>
+				</div>
+				<div data-page="page3">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio" data-to="page3-1">Add Line</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio" data-to="page3-2">Add Station</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio" data-to="page3-3">Change Setting</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio" data-to="page3-4">Delete Line</label>
+							    </div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-1">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Add Line
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">New Line Name<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" id="new-line" data-pid="page31-newline" data-search="line">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">SFC URL</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page31-sfc">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Add The Station Type</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page31-stationtype">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="add" data-add='0'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-2">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Add Station
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Add The Station Type<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page32-stationtype" data-vali="stationType">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Add The Line Name<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="line" data-pid="page32-line">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">RESTORE SCRIPT(OSX IMAGE)</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="osx" data-pid="page32-osx">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="add" data-add='0'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-3">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Change Setting
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Line Name</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="line" data-judge="line" data-pid="page33-linename">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Station Type</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-judge="station" data-pid="page33-stationtype">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Station Unit</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-judge="unit" data-pid="page33-stationunit">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">IP Address</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" data-judge="ipaddress" class="form-control mt-1 mb-1" data-pid="page33-ipaddress">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="add33" data-add='0'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-3-1">
+					<div class="row">
+						<div class="col-sm-4 border">Product<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0" id="product"></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							Change Setting
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Request For Change</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change Before
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change After
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page331-sfc">SFC URL</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page331-lineip">Line Manager IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page331-serverip">Spidercab Server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page331-thorserverip">Thor server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page331-build">Build Stage</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Other Setting Change</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page331-setting">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="addOther" data-add='1'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-3-2">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Change Setting
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Line Name<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="line" data-pid="page332-line" readonly="readonly">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Request For Change</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change Before
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change After
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page332-station">STATION_SET_CONTROL_BIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page332-control">CONTROL_BITS_TO_CHECK_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page332-sfc">SFC_QUERY_UNIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page332-sfcurl">SFC URL</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page332-lineip">Line Manager IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page332-serverip">Spidercab Server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page332-thorserverip">Thor server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page332-build">Build Stage</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Other Setting Change</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page332-setting">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="addOther" data-add='1'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-3-3">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Change Setting
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Station Type<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-desc="station-type" data-pid="page333-stationtype" readonly="readonly">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Request For Change</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change Before
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change After
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-osx">RESTORE SCRIPT(OSX IMAGE)</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="osx">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="osx">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page333-station">STATION_SET_CONTROL_BIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page333-control">CONTROL_BITS_TO_CHECK_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page333-sfc">SFC_QUERY_UNIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-sfcurl">SFC URL</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-lineip">Line Manager IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-serverip">Spidercab Server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-thorserverip">Thor server IP</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page333-build">Build Stage</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Other Setting Change</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page333-setting">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="addOther" data-add='1'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-3-4">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Change Setting
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Station Unit</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page334-stationunit" readonly="readonly">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">IP Address</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page334-ip" readonly="readonly">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Request For Change</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change Before
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							Change After
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page334-station">STATION_SET_CONTROL_BIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page334-control">CONTROL_BITS_TO_CHECK_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0 break-word" data-pid="page334-sfc">SFC_QUERY_UNIT_ON_OFF</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<form>
+								<div class="radio">
+							    	<label><input type="radio" name="optradio">ON</label>
+							    </div>
+							    <div class="radio">
+							    	<label><input type="radio" name="optradio">OFF</label>
+								</div>
+							</form>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page334-sfcurl">SFC URL</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0" data-pid="page334-build">Build Stage</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+						<div class="col-sm-4 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-search="build">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Other Setting Change</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page334-setting">
+						</div>
+					</div>
+					<div class="row mt-2 mb-4">
+						<div class="col-sm-12 text-center">
+							<button class="col-sm-2 btn btn-outline-secondary float-left" type="button" data-func="cls">Clear</button>
+							<button class="col-sm-2 btn btn-outline-secondary" type="button" data-dir="back">Back</button>
+							<button class="col-sm-2 btn btn-outline-secondary ml-5" type="button" data-dir="addOther" data-add='1'>Add</button>
+							<button class="col-sm-2 btn btn-outline-secondary float-right" type="button" data-dir="next">Next</button>
+						</div>
+					</div>
+				</div>
+				<div data-page="page3-4">
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Delete Line
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0"><span data-color-red>Delete Line Name*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-option="deleteline" data-search="line" data-pid="page34-deleteline">
+						</div>
+					</div>
+					<br/>
+					<div class="row">
+						<div class="col-sm-4 border">Request Category<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							Add Other Line
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">New Line Name<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" id="new-line" data-pid="page34-newline" data-search="line" data-option="addline">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Product<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0" id="page34_products"></div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">SFC URL</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page34-sfc">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Add The Station Type</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-pid="page34-stationtype">
+						</div>
+					</div>				
+				</div>
+				<div data-page="page4">
+					<!-- <div class="row">
+						<div class="col-sm-4 border">Username<span data-color-red>*</span></div>
+						<div class="col-sm-8 border border-left-0">
+							<input type="text" class="form-control mt-1 mb-1" data-desc="email" id="usr" placeholder="请输入邮箱用户名，如：Tito_Wu" value="{{ request.user.username }}">
+						</div>
+					</div> -->
+					<!-- <div class="row">
+						<div class="col-sm-4 border border-top-0">Password<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="password" class="form-control mt-1 mb-1" data-desc="email" id="pwd" placeholder="请输入邮箱密码">
+						</div>
+					</div> -->
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Mail Title<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-desc="email" id="subject">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Mail From<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-desc="email" id="f" placeholder="请输入本用户名所对应的邮箱账号" value="{{ request.user.email }}">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">Mail To<span data-color-red>*</span></div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" data-desc="email" id="to" placeholder="请输入收件人邮箱账号" value="PGPD_Groundhog_Support@pegatroncorp.com">
+						</div>
+					</div>
+					<!-- <div class="row">
+						<div class="col-sm-4 border border-top-0">CC</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="text" class="form-control mt-1 mb-1" id="cc" placeholder="多个邮箱账号以英文分号`;`分隔">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-4 border border-top-0">附件</div>
+						<div class="col-sm-8 border-right border-bottom">
+							<input type="file" class="mt-1 mb-1" id="myFile">
+						</div>
+					</div> -->
+					
+				</div>
+				<div id="emergency">
+					<div><b>Emergency Contact:</b></div>
+				</div>
+			</div>
+			<div class="col-sm-1"></div>
+			<div class="col-sm-5">
+				<p id="preview-title"><b>Required Content:</b></p>
+				<textarea type="text" wrap="off"  class="form-control" id="preview-content" rows="12" name="mail_content">
+				</textarea>
+				<!-- <div class="border border-primary" id="preview-content" contenteditable="true">
+					 -->
+					<!-- <div id="page1"></div>
+					<div id="page2"></div>
+					<div id="page3"></div>
+					<div id="page3-1">
+						<div id="page31-newline" contenteditable="true"></div>
+						<div id="page31-sfc" contenteditable="true"></div>
+						<div id="page31-stationtype" contenteditable="true"></div>
+					</div>
+					<div id="page3-2">
+						<div id="page32-stationtype" contenteditable="true"></div>
+						<div id="page32-line" contenteditable="true"></div>
+						<div id="page32-osx" contenteditable="true"></div>
+					</div>
+					<div id="page3-3">
+						<div id="page33-linename" contenteditable="true"></div>
+						<div id="page33-stationtype" contenteditable="true"></div>
+						<div id="page33-stationunit" contenteditable="true"></div>
+						<div id="page33-ipaddress" contenteditable="true"></div>
+					</div>
+					<div id="page3-3-1">
+						<div id="page331-sfc" contenteditable="true"></div>
+						<div id="page331-lineip" contenteditable="true"></div>
+						<div id="page331-serverip" contenteditable="true"></div>
+						<div id="page331-build" contenteditable="true"></div>
+						<div id="page331-setting" contenteditable="true"></div>
+					</div>
+					<div id="page3-3-2">
+						<div id="page332-line" contenteditable="true"></div>
+						<div id="page332-station" contenteditable="true"></div>
+						<div id="page332-control" contenteditable="true"></div>
+						<div id="page332-sfc" contenteditable="true"></div>
+						<div id="page332-sfcurl" contenteditable="true"></div>
+						<div id="page332-lineip" contenteditable="true"></div>
+						<div id="page332-serverip" contenteditable="true"></div>
+						<div id="page332-build" contenteditable="true"></div>
+					</div>
+					<div id="page3-3-3">
+						<div id="page333-stationtype" contenteditable="true"></div>
+						<div id="page333-osx" contenteditable="true"></div>
+						<div id="page333-station" contenteditable="true"></div>
+						<div id="page333-control" contenteditable="true"></div>
+						<div id="page333-sfc" contenteditable="true"></div>
+						<div id="page333-sfcurl" contenteditable="true"></div>
+						<div id="page333-lineip" contenteditable="true"></div>
+						<div id="page333-serverip" contenteditable="true"></div>
+						<div id="page333-build" contenteditable="true"></div>
+					</div>
+					<div id="page3-3-4">
+						<div id="page334-stationunit" contenteditable="true"></div>
+						<div id="page334-ip" contenteditable="true"></div>
+						<div id="page334-station" contenteditable="true"></div>
+						<div id="page334-control" contenteditable="true"></div>
+						<div id="page334-sfc" contenteditable="true"></div>
+						<div id="page334-sfcurl" contenteditable="true"></div>
+						<div id="page334-build" contenteditable="true"></div>
+					</div>
+					<div id="page3-4">
+						<div id="page34-deleteline" contenteditable="true"></div>
+					</div>
+					<div id="allpage-append">						
+					</div> -->
+				<!-- </div> -->
+				<div class="row mt-2 mb-2" data-desc="desc-file">
+					<div class="col-sm-12">
+						<a class="col-sm-5 btn btn-info"  href="/static/sendEmail/New Line Application Format.xlsx">New Line Application Format</a>
+						<a class="col-sm-5 btn btn-info"  style="float:right" href="/static/sendEmail/Emergency Contact For MP1119.xlsx">Emergency Contact For MP</a>
+					 
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{% include 'sendEmail/footer.html' %}
+
+	<div id="dialog-message" title="提示信息"></div>
+	<div id="confirm" title="提示信息"></div>
+	<a id="send-email-a" href="mailto" style="display: none;"></a>			
+	<button id="hide-email" style="display: none;"></button>
+	<!-- CCEmail菜单 -->
+	<ul class="list-group position-absolute pointer d-none" id="ccemail-menu" data-tag="menu" data-open="false" data-menu="ccemail">
+		<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="@pegatroncorp.com" data-func="ccemail">@pegatroncorp.com</li>
+		<li class="list-group-item list-group-item-secondary list-group-item-action" data-val="@intra.pegatroncorp.com" data-func="ccemail">@intra.pegatroncorp.com</li>
+	</ul>
+</body>
+</html>
